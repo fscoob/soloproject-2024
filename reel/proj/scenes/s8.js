@@ -21,7 +21,7 @@ MOTION.scene({ id: 's8',
       X.save(); X.globalAlpha = 1 - fo;
       const k = E.expoOut(L.pr(t, g0 - 0.2, g0 + 0.4));
       // envelope of money «خذي هذا المبلغ»
-      X.save(); X.translate(540, 720); X.scale(k, k); X.fillStyle = '#F5F1E8'; X.beginPath(); X.roundRect(-200, -130, 400, 260, 24); X.fill();
+      X.save(); X.translate(540, 720); X.scale(k, k); X.fillStyle = '#FFFFFF'; X.beginPath(); X.roundRect(-200, -130, 400, 260, 24); X.fill();
       X.strokeStyle = 'rgba(14,22,38,.25)'; X.lineWidth = 6; X.beginPath(); X.moveTo(-200, -130); X.lineTo(0, 20); X.lineTo(200, -130); X.stroke();
       const up = E.expoOut(L.pr(t, W('l23', 8), W('l23', 8) + 0.5)); I.bill(ctx, 0, -60 - 80 * up, 240, 0, '#56C08F'); X.restore();
       [[W('l24', 4), 'حلا', 250, 470, P.acc], [W('l24', 6), 'هذا', 830, 470, P.ink], [W('l24', 8), 'مكياج', 540, 1040, P.acc]].forEach(([s, str, x, y, col], j) => {

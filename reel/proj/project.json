@@ -3,16 +3,16 @@
  "fps": 60,
  "width": 1080,
  "height": 1920,
- "bpm": 100,
+ "bpm": 80,
  "beatsPerBar": 4,
  "palette": {
-  "bg": "#0E1626",
-  "ink": "#F5F1E8",
-  "acc": "#F2B33D",
-  "clay": "#EF5B45",
-  "hi": "#38C9A5",
-  "mut": "#7D8BA3",
-  "onAcc": "#0E1626"
+  "bg": "#F7F2E9",
+  "ink": "#1F2937",
+  "acc": "#D4880F",
+  "clay": "#D94B3A",
+  "hi": "#139A7A",
+  "mut": "#9AA1AD",
+  "onAcc": "#FFFFFF"
  },
  "fonts": {
   "display": "Lalezar",
@@ -20,8 +20,8 @@
   "num": "Inter"
  },
  "post": {
-  "grain": 0.035,
-  "vignette": 0.3
+  "grain": 0.02,
+  "vignette": 0.08
  },
  "timing": {
   "keepOriginal": true,
@@ -46,8 +46,9 @@
     "l6"
    ],
    "transition": {
-    "type": "iris",
-    "dur": 0.45
+    "type": "crossfade",
+    "dur": 0.9,
+    "ease": "cubicInOut"
    }
   },
   {
@@ -59,9 +60,9 @@
     "l9"
    ],
    "transition": {
-    "type": "wipe",
-    "dur": 0.45,
-    "dir": "rtl"
+    "type": "crossfade",
+    "dur": 0.9,
+    "ease": "cubicInOut"
    }
   },
   {
@@ -73,8 +74,9 @@
     "l12"
    ],
    "transition": {
-    "type": "glitch",
-    "dur": 0.3
+    "type": "crossfade",
+    "dur": 0.9,
+    "ease": "cubicInOut"
    }
   },
   {
@@ -86,9 +88,9 @@
     "l15"
    ],
    "transition": {
-    "type": "push",
-    "dur": 0.45,
-    "dir": "rtl"
+    "type": "crossfade",
+    "dur": 0.9,
+    "ease": "cubicInOut"
    }
   },
   {
@@ -99,9 +101,9 @@
     "l17"
    ],
    "transition": {
-    "type": "dip",
-    "dur": 0.45,
-    "color": "#0B1220"
+    "type": "crossfade",
+    "dur": 0.9,
+    "ease": "cubicInOut"
    }
   },
   {
@@ -113,8 +115,9 @@
     "l20"
    ],
    "transition": {
-    "type": "flash",
-    "dur": 0.45
+    "type": "crossfade",
+    "dur": 0.9,
+    "ease": "cubicInOut"
    }
   },
   {
@@ -128,8 +131,9 @@
     "l25"
    ],
    "transition": {
-    "type": "iris",
-    "dur": 0.45
+    "type": "crossfade",
+    "dur": 0.9,
+    "ease": "cubicInOut"
    }
   },
   {
@@ -141,9 +145,9 @@
     "l28"
    ],
    "transition": {
-    "type": "wipe",
-    "dur": 0.45,
-    "dir": "rtl"
+    "type": "crossfade",
+    "dur": 0.9,
+    "ease": "cubicInOut"
    }
   },
   {
@@ -155,9 +159,9 @@
     "l31"
    ],
    "transition": {
-    "type": "push",
-    "dur": 0.45,
-    "dir": "rtl"
+    "type": "crossfade",
+    "dur": 0.9,
+    "ease": "cubicInOut"
    }
   },
   {
@@ -170,8 +174,9 @@
     "l35"
    ],
    "transition": {
-    "type": "zoom",
-    "dur": 0.45
+    "type": "crossfade",
+    "dur": 0.9,
+    "ease": "cubicInOut"
    }
   },
   {
@@ -183,10 +188,36 @@
     "l38"
    ],
    "transition": {
-    "type": "dip",
-    "dur": 0.45,
-    "color": "#0B1220"
+    "type": "crossfade",
+    "dur": 0.9,
+    "ease": "cubicInOut"
    }
+  }
+ ],
+ "music": {
+  "key": "D",
+  "scale": "major",
+  "progression": [
+   0,
+   5,
+   3,
+   4
+  ],
+  "level": -15,
+  "duck": -5,
+  "top": {
+   "hat": 4,
+   "pluck": -2
+  }
+ },
+ "sections": [
+  {
+   "name": "intro",
+   "at": 0
+  },
+  {
+   "name": "outro",
+   "at": "scene:s12"
   }
  ]
 }

@@ -2,7 +2,8 @@
 const G = globalThis;
 if (!G.LIB) {
   const cl = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
-  const pr = (t, a, b) => cl((t - a) / (b - a));
+  const SLOW = 1.7;   // calm pace: every animation window lasts 1.7x longer
+  const pr = (t, a, b) => cl((t - a) / ((b - a) * SLOW));
 
   // ── which words get colored (match without punctuation / diacritics)
   const HOT = {
@@ -54,7 +55,7 @@ if (!G.LIB) {
     const kin = E.expoOut(pr(t, C.s, C.s + 0.25)), kout = pr(t, C.e - 0.12, C.e);
     // soft plate behind the caption
     const pw = Math.min(840, L.width + 80), ph = L.lines.length * size * 1.18 + 46;
-    X.save(); X.globalAlpha = 0.55 * kin * (1 - kout); X.fillStyle = '#060B14';
+    X.save(); X.globalAlpha = 0.92 * kin * (1 - kout); X.fillStyle = '#FFFFFF'; X.shadowColor = 'rgba(31,41,55,.12)'; X.shadowBlur = 30; X.shadowOffsetY = 8;
     X.beginPath(); X.roundRect(540 - pw / 2, yy - size * 1.02 - 8, pw, ph, 28); X.fill(); X.restore();
     let cur = -1; C.forEach((w, j) => { if (t >= w.s - 0.03) cur = j; });
     ctx.text.drawLayout(X, L, 540, yy, {
@@ -64,11 +65,11 @@ if (!G.LIB) {
         const col = colorOf(ctx, w.w, w.line);
         const isCur = i === cur;
         return {
-          alpha: (said ? 1 : 0.38) * (1 - kout),
+          alpha: (said ? 1 : 0.32) * (1 - kout),
           dy: (1 - kin) * 30 - (said ? 0 : 0) + (isCur ? -4 * (1 - k) : 0),
           scale: said ? 1 + 0.08 * (1 - k) * (isCur ? 1 : 0) : 0.97,
           color: said ? (col || P.ink) : P.ink,
-          stroke: { width: 10, color: '#060B14' },
+          stroke: null,
         };
       }
     });
@@ -86,10 +87,10 @@ if (!G.LIB) {
     X.fillStyle = P.bg; X.fillRect(0, 0, W, H);
     const cx = 540 + 160 * Math.sin(t * 0.21), cy = 760 + 120 * Math.cos(t * 0.17);
     const g = X.createRadialGradient(cx, cy, 40, cx, cy, 1100);
-    g.addColorStop(0, o.glow || 'rgba(242,179,61,0.10)'); g.addColorStop(1, 'rgba(14,22,38,0)');
+    g.addColorStop(0, o.glow || 'rgba(242,179,61,0.10)'); g.addColorStop(1, 'rgba(247,242,233,0)');
     X.fillStyle = g; X.fillRect(0, 0, W, H);
     // dot grid drifting
-    X.save(); X.fillStyle = 'rgba(245,241,232,0.07)'; const off = (t * 14) % 60;
+    X.save(); X.fillStyle = 'rgba(31,41,55,0.07)'; const off = (t * 6) % 60;
     for (let y = -60; y < H + 60; y += 60) for (let x = 0; x < W + 60; x += 60) { X.beginPath(); X.arc(x - off, y + off * 0.5, 2.2, 0, 6.283); X.fill(); }
     X.restore();
     shapes(ctx, t, o.shapes ?? 9, o.seed ?? 1);
@@ -99,7 +100,7 @@ if (!G.LIB) {
     const cols = [P.acc, P.hi, P.clay, P.ink];
     for (let i = 0; i < n; i++) {
       const kind = i % 4, bx = r() * 1080, by = 180 + r() * 1150, sz = 18 + r() * 40, sp = 0.3 + r() * 0.5, ph = r() * 6.28, col = cols[Math.floor(r() * 4)];
-      const x = bx + 40 * Math.sin(t * sp + ph), y = by + 30 * Math.cos(t * sp * 0.8 + ph), rot = t * sp * 0.8 + ph;
+      const x = bx + 40 * Math.sin(t * sp * 0.5 + ph), y = by + 30 * Math.cos(t * sp * 0.4 + ph), rot = t * sp * 0.35 + ph;
       X.save(); X.translate(x, y); X.rotate(rot); X.globalAlpha = 0.22; X.strokeStyle = col; X.fillStyle = col; X.lineWidth = 4;
       X.beginPath();
       if (kind === 0) X.arc(0, 0, sz * 0.6, 0, 6.283);
@@ -112,7 +113,7 @@ if (!G.LIB) {
 
   /* helpers */
   const pill = (ctx, x, y, w, h, fill, alpha = 1) => { const X = ctx.X; X.save(); X.globalAlpha *= alpha; X.fillStyle = fill; X.beginPath(); X.roundRect(x - w / 2, y - h / 2, w, h, h / 2); X.fill(); X.restore(); };
-  const card = (ctx, x, y, w, h, o = {}) => { const X = ctx.X; X.save(); X.globalAlpha *= o.alpha ?? 1; X.shadowColor = 'rgba(0,0,0,.35)'; X.shadowBlur = 40; X.shadowOffsetY = 16; X.fillStyle = o.fill || '#16223A'; X.beginPath(); X.roundRect(x - w / 2, y - h / 2, w, h, o.r ?? 36); X.fill(); X.shadowColor = 'transparent'; if (o.stroke) { X.strokeStyle = o.stroke; X.lineWidth = o.lw || 4; X.stroke(); } X.restore(); };
+  const card = (ctx, x, y, w, h, o = {}) => { const X = ctx.X; X.save(); X.globalAlpha *= o.alpha ?? 1; X.shadowColor = 'rgba(31,41,55,.14)'; X.shadowBlur = 40; X.shadowOffsetY = 16; X.fillStyle = o.fill || '#FFFFFF'; X.beginPath(); X.roundRect(x - w / 2, y - h / 2, w, h, o.r ?? 36); X.fill(); X.shadowColor = 'transparent'; if (o.stroke) { X.strokeStyle = o.stroke; X.lineWidth = o.lw || 4; X.stroke(); } X.restore(); };
   const pop = (ctx, t, s, d = 0.35) => ctx.E.backOut(pr(t, s, s + d));   // 0..1 (engine backOut = soft, no overshoot)
   const label = (ctx, str, x, y, o = {}) => ctx.text(ctx.X, str, x, y, { family: o.family || 'display', size: o.size || 90, color: o.color || ctx.P.ink, weight: o.weight || 400, align: o.align || 'center', alpha: o.alpha, maxWidth: o.maxWidth || 960, stroke: o.stroke, shadow: o.shadow });
   const ring = (ctx, x, y, r, k, col, lw = 10) => { const X = ctx.X; if (k <= 0) return; X.save(); X.strokeStyle = col; X.lineWidth = lw; X.lineCap = 'round'; X.beginPath(); X.arc(x, y, r, -Math.PI / 2, -Math.PI / 2 + 6.283 * cl(k)); X.stroke(); X.restore(); };

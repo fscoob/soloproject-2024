@@ -20,7 +20,7 @@ MOTION.scene({ id: 's3',
     if (t > rs && t < rs + 4) this.rain.draw(X, t - rs, 1 - L.pr(t, rs + 3, rs + 4));
     // «كمصروف» pill
     const ks = W('l7', 7), kp = E.expoOut(L.pr(t, ks - 0.05, ks + 0.35)) * (1 - L.pr(t, W('l8', 0) - 0.2, W('l8', 0) + 0.1));
-    if (kp > 0) { X.save(); X.globalAlpha = kp; L.pill(ctx, 540, 1150, 420, 120, P.acc); ctx.text(X, 'كمصروف', 540, 1178, { family: 'display', size: 84, color: P.bg }); X.restore(); }
+    if (kp > 0) { X.save(); X.globalAlpha = kp; L.pill(ctx, 540, 1150, 420, 120, P.acc); ctx.text(X, 'كمصروف', 540, 1178, { family: 'display', size: 84, color: '#FFFFFF' }); X.restore(); }
     // l8 «هذا مصروفي» speech bubble
     const b0 = W('l8', 1), kbub = E.expoOut(L.pr(t, b0 - 0.05, b0 + 0.35)) * (1 - out);
     if (kbub > 0) { I.bubble(ctx, 540, 1110, 640, 190, P.ink, kbub); ctx.text(X, 'هذا مصروفي!', 540, 1140, { family: 'display', size: 100, color: P.bg, alpha: kbub }); }

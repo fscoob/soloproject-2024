@@ -1,28 +1,92 @@
 [
- {"type":"whoosh","at":0.2,"gain":-8},
- {"type":"pop","at":"word:l2:2","gain":-10},
- {"type":"pop","at":"word:l3:1","gain":-12},
- {"type":"swoosh-pass","at":"scene:s2","gain":-12},
- {"type":"shimmer","at":"word:l4:4","gain":-12},
- {"type":"impact","at":"word:l5:4","gain":-10},
- {"type":"tick","at":"word:l6:3","gain":-8},
- {"type":"shimmer","at":"word:l7:6","gain":-12},
- {"type":"pop","at":"word:l8:1","gain":-10},
- {"type":"glitch","at":"scene:s4","gain":-12},
- {"type":"sub-drop","at":"word:l10:4","gain":-8},
- {"type":"swoosh-pass","at":"word:l11:3","gain":-12},
- {"type":"impact","at":"word:l15:1","gain":-10},
- {"type":"shimmer","at":"word:l17:3","gain":-12},
- {"type":"impact","at":"word:l18:3","gain":-9},
- {"type":"scratch","at":"word:l20:5+0.15","gain":-12},
- {"type":"shimmer","at":"word:l21:3","gain":-12},
- {"type":"pop","at":"word:l24:4","gain":-12},
- {"type":"pop","at":"word:l24:8","gain":-12},
- {"type":"tick","at":"word:l27:2","gain":-8},
- {"type":"impact","at":"word:l28:5","gain":-11},
- {"type":"whoosh","at":"word:l29:4-0.1","gain":-10},
- {"type":"impact","at":"word:l34:3","gain":-11},
- {"type":"boom","at":"word:l35:4","gain":-8},
- {"type":"riser","at":"word:l36:3","gain":-14},
- {"type":"shimmer","at":"word:l38:2","gain":-12}
+ {
+  "type": "whoosh",
+  "at": 0.2,
+  "gain": 0.2
+ },
+ {
+  "type": "swoosh-pass",
+  "at": "scene:s2",
+  "gain": 0.2
+ },
+ {
+  "type": "shimmer",
+  "at": "word:l4:4",
+  "gain": 0.2
+ },
+ {
+  "type": "impact",
+  "at": "word:l5:4",
+  "gain": 0.16
+ },
+ {
+  "type": "tick",
+  "at": "word:l6:3",
+  "gain": 0.2
+ },
+ {
+  "type": "shimmer",
+  "at": "word:l7:6",
+  "gain": 0.2
+ },
+ {
+  "type": "swoosh-pass",
+  "at": "word:l11:3",
+  "gain": 0.2
+ },
+ {
+  "type": "impact",
+  "at": "word:l15:1",
+  "gain": 0.16
+ },
+ {
+  "type": "shimmer",
+  "at": "word:l17:3",
+  "gain": 0.2
+ },
+ {
+  "type": "impact",
+  "at": "word:l18:3",
+  "gain": 0.16
+ },
+ {
+  "type": "shimmer",
+  "at": "word:l21:3",
+  "gain": 0.2
+ },
+ {
+  "type": "tick",
+  "at": "word:l27:2",
+  "gain": 0.2
+ },
+ {
+  "type": "impact",
+  "at": "word:l28:5",
+  "gain": 0.16
+ },
+ {
+  "type": "whoosh",
+  "at": "word:l29:4-0.1",
+  "gain": 0.2
+ },
+ {
+  "type": "impact",
+  "at": "word:l34:3",
+  "gain": 0.16
+ },
+ {
+  "type": "impact",
+  "at": "word:l35:4",
+  "gain": 0.16
+ },
+ {
+  "type": "riser",
+  "at": "word:l36:3",
+  "gain": 0.2
+ },
+ {
+  "type": "shimmer",
+  "at": "word:l38:2",
+  "gain": 0.2
+ }
 ]

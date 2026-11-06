@@ -10,7 +10,7 @@ MOTION.scene({ id: 's5',
     if (out < 1) { X.save(); X.globalAlpha = k0 * (1 - out);
       ctx.text(X, 'المصاريف', 540, 430, { family: 'display', size: 120, color: P.ink });
       const shrink = E.expoInOut(L.pr(t, W('l13', 3), W('l13', 6) + 0.3)), w = 820 * (1 - 0.55 * shrink);
-      X.fillStyle = 'rgba(245,241,232,.08)'; X.beginPath(); X.roundRect(130, 520, 820, 120, 60); X.fill();
+      X.fillStyle = 'rgba(31,41,55,.08)'; X.beginPath(); X.roundRect(130, 520, 820, 120, 60); X.fill();
       X.fillStyle = shrink > 0.05 ? P.acc : P.hi; X.beginPath(); X.roundRect(950 - w, 520, w, 120, 60); X.fill();
       // scissors line
       if (shrink > 0 && shrink < 1) { X.strokeStyle = P.clay; X.setLineDash([16, 12]); X.lineWidth = 6; X.beginPath(); X.moveTo(950 - w, 490); X.lineTo(950 - w, 670); X.stroke(); X.setLineDash([]); }
@@ -29,7 +29,7 @@ MOTION.scene({ id: 's5',
     if (kb > 0) { I.bubble(ctx, 540, 640, 760, 300, P.clay, kb, 'left'); ctx.text(X, 'لا!', 540, 610, { family: 'display', size: 130, color: P.ink, alpha: kb });
       ctx.text(X, 'هذا حقي', 540, 740, { family: 'display', size: 110, color: P.ink, alpha: E.expoOut(L.pr(t, W('l15', 3) - 0.05, W('l15', 3) + 0.25)) });
       L.burst(ctx, t, no, 540, 640, P.clay, 16, 420);
-      const m = W('l15', 5), km = E.expoOut(L.pr(t, m - 0.05, m + 0.3)); if (km > 0) { X.save(); X.globalAlpha = km; L.pill(ctx, 540, 1000, 440, 120, P.acc); ctx.text(X, 'مصروف', 540, 1030, { family: 'display', size: 90, color: P.bg }); X.restore(); } }
+      const m = W('l15', 5), km = E.expoOut(L.pr(t, m - 0.05, m + 0.3)); if (km > 0) { X.save(); X.globalAlpha = km; L.pill(ctx, 540, 1000, 440, 120, P.acc); ctx.text(X, 'مصروف', 540, 1030, { family: 'display', size: 90, color: '#FFFFFF' }); X.restore(); } }
     X.restore();
     L.caption(ctx, t);
   } });

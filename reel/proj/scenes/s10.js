@@ -20,7 +20,7 @@ MOTION.scene({ id: 's10',
     // l30 envelope «مبلغ مخصص» ; l31 question marks «كيف جايز؟»
     const e0 = W('l30', 2);
     if (t > e0 - 0.3) { const k = E.expoOut(L.pr(t, e0 - 0.3, e0 + 0.4));
-      X.save(); X.translate(540, 700); X.scale(k * 1.2, k * 1.2); X.fillStyle = '#F5F1E8'; X.beginPath(); X.roundRect(-220, -140, 440, 280, 26); X.fill();
+      X.save(); X.translate(540, 700); X.scale(k * 1.2, k * 1.2); X.fillStyle = '#FFFFFF'; X.beginPath(); X.roundRect(-220, -140, 440, 280, 26); X.fill();
       X.strokeStyle = 'rgba(14,22,38,.25)'; X.lineWidth = 6; X.beginPath(); X.moveTo(-220, -140); X.lineTo(0, 30); X.lineTo(220, -140); X.stroke();
       X.fillStyle = P.clay; X.beginPath(); X.arc(0, 30, 34, 0, 6.283); X.fill(); X.restore();
       ctx.text(X, 'مبلغ مخصص', 540, 1060, { family: 'display', size: 120, color: P.acc, alpha: E.expoOut(L.pr(t, W('l30', 3) - 0.05, W('l30', 3) + 0.3)) });

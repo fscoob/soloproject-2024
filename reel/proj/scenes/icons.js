@@ -16,7 +16,7 @@ if (!G.ICO) {
     X.save(); X.translate(x, y); X.rotate(o.rot ?? -0.12); X.scale(sc, sc); X.globalAlpha *= L.cl(k * 2) * (o.alpha ?? 1);
     X.font = ctx.font('Lalezar', 400, size); const w = X.measureText(str).width + 70; X.strokeStyle = col; X.lineWidth = 10; X.beginPath(); X.roundRect(-w / 2, -size * 0.78, w, size * 1.25, 18); X.stroke();
     ctx.text(X, str, 0, size * 0.3, { family: 'display', size, color: col }); X.restore(); };
-  const shake = (t, s, amp = 14, d = 0.35) => { const k = L.pr(t, s, s + d); if (k <= 0 || k >= 1) return [0, 0]; const a = amp * (1 - k); return [a * Math.sin(t * 90), a * Math.cos(t * 77)]; };
+  const shake = (t, s, amp = 14, d = 0.35) => { const k = L.pr(t, s, s + d); if (k <= 0 || k >= 1) return [0, 0]; const a = amp * 0.3 * (1 - k); return [a * Math.sin(t * 40), a * Math.cos(t * 33)]; };
   G.ICO = { person, check, xmark, bubble, coin, bill, stamp, shake };
 }
 export default G.ICO;

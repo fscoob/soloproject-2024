@@ -25,7 +25,7 @@ MOTION.scene({ id: 's2',
     if (t > s5 - 0.2) {
       const k = E.expoOut(L.pr(t, s5 - 0.2, s5 + 0.4)), out = L.pr(t, W('l6', 0) - 0.3, W('l6', 0) + 0.2);
       X.save(); X.globalAlpha = 1 - out; X.translate(0, (1 - k) * 200);
-      L.card(ctx, 540, 900, 640, 400, { fill: '#F5F1E8' });
+      L.card(ctx, 540, 900, 640, 400, { fill: '#FFFFFF' });
       for (let i = 0; i < 4; i++) { const kk = E.expoOut(L.pr(t, s5 + i * 0.18, s5 + 0.4 + i * 0.18));
         X.fillStyle = 'rgba(14,22,38,.18)'; X.beginPath(); X.roundRect(320 + (1 - kk) * 40, 770 + i * 80, 380 * kk, 26, 13); X.fill();
         X.fillStyle = P.acc; X.beginPath(); X.arc(770, 783 + i * 80, 16 * kk, 0, 6.283); X.fill(); }

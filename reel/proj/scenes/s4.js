@@ -9,8 +9,8 @@ MOTION.scene({ id: 's4',
     const k0 = E.expoOut(L.pr(t, ctx.scene.start, ctx.scene.start + 0.6));
     const fade = 1 - L.pr(t, W('l11', 0) - 0.3, W('l11', 0) + 0.1);
     X.save(); X.globalAlpha = k0 * fade;
-    L.card(ctx, 540, 720, 860, 640, { fill: '#121D33', stroke: 'rgba(245,241,232,.08)' });
-    X.strokeStyle = 'rgba(245,241,232,.08)'; X.lineWidth = 2; for (let i = 0; i < 5; i++) { X.beginPath(); X.moveTo(150, 480 + i * 110); X.lineTo(930, 480 + i * 110); X.stroke(); }
+    L.card(ctx, 540, 720, 860, 640, { fill: '#FFFFFF', stroke: 'rgba(31,41,55,.08)' });
+    X.strokeStyle = 'rgba(31,41,55,.08)'; X.lineWidth = 2; for (let i = 0; i < 5; i++) { X.beginPath(); X.moveTo(150, 480 + i * 110); X.lineTo(930, 480 + i * 110); X.stroke(); }
     const up = [[160, 900], [280, 840], [380, 860], [480, 760], [580, 700], [680, 640], [760, 560]];
     const ku = E.cubicInOut(L.pr(t, W('l10', 0), crash));
     const tip = ctx.drawPath(X, up, ku, { width: 12, color: P.hi, tip: { r: 12, color: P.hi } });
@@ -35,7 +35,7 @@ MOTION.scene({ id: 's4',
     [[W('l12', 4), 'تقشّف', 420, -0.08], [W('l12', 5), 'صعوبة في الحياة', 640, 0.06]].forEach(([s, str, y, rot]) => {
       const q = L.pr(t, s - 0.05, s + 0.5); if (q <= 0) return; const e = E.bounceOut(q);
       X.save(); X.translate(540, y + 500 * e); X.rotate(rot * e); X.font = ctx.font('Lalezar', 400, 110); const w = X.measureText(str).width + 90;
-      L.pill(ctx, 0, -30, w, 160, P.clay); ctx.text(X, str, 0, 8, { family: 'display', size: 110, color: P.ink }); X.restore();
+      L.pill(ctx, 0, -30, w, 160, P.clay); ctx.text(X, str, 0, 8, { family: 'display', size: 110, color: '#FFFFFF' }); X.restore();
     });
     // down arrows
     if (t > W('l12', 4)) for (let i = 0; i < 3; i++) { const y = ((t * 260 + i * 120) % 360) + 300; ctx.text(X, '↓', 140 + i * 400, y, { family: 'Inter', weight: 900, size: 90, color: P.clay, alpha: 0.35, dir: 'ltr' }); }
