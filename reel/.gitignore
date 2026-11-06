@@ -1,0 +1,8 @@
+*.wav
+proj/renders/
+proj/vo/
+proj/own.wav
+turbo/
+a.json
+*.log
+proj/sheet.jpg
