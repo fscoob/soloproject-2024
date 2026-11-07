@@ -70,23 +70,18 @@ section{padding-block:96px}
 @media (max-width:980px){ .services{grid-template-columns:repeat(2,1fr)} }
 @media (max-width:560px){ .services{grid-template-columns:1fr} }
 
-.works{display:grid;grid-template-columns:1.25fr 1fr;gap:26px}
-.work{display:grid;gap:14px;margin:0;min-width:0}
-.work .frame{border-radius:999px 999px 20px 20px;overflow:hidden;background:var(--green);border:1px solid var(--line)}
-.work.wide .frame{border-radius:20px}
-.work img{width:100%;height:100%;object-fit:cover}
-.work .meta{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
-.work h3{font-family:var(--display);font-size:26px}
-.work .meta .lat{font-size:16px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase}
+.works{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:20px;align-items:start}
+.work{display:grid;gap:12px;margin:0;min-width:0}
+.work .frame{overflow:hidden;background:var(--green);border:1px solid var(--line);border-radius:999px 999px 18px 18px;aspect-ratio:9/16}
+.work.w1 .frame{border-radius:18px;aspect-ratio:auto;height:100%}
+.w1{grid-row:span 1;align-self:stretch;grid-template-rows:1fr auto}
+.work img,.work video{width:100%;height:100%;object-fit:cover;display:block}
+.work .meta{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.work h3{font-family:var(--display);font-size:24px}
+.work .meta .lat{font-size:15px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase}
 .work p{color:var(--muted);font-size:15px}
-.w1{grid-column:1/-1}
-.w1 .frame{aspect-ratio:16/8}
-.w2 .frame{aspect-ratio:16/10}
-.w3 .frame,.w4 .frame{aspect-ratio:4/5}
-.col{display:grid;gap:26px}
-.pair{display:grid;grid-template-columns:1fr 1fr;gap:26px}
-@media (max-width:860px){ .works{grid-template-columns:1fr} .pair{grid-template-columns:1fr 1fr} }
-@media (max-width:520px){ .pair{grid-template-columns:1fr} }
+@media (max-width:860px){ .works{grid-template-columns:repeat(3,1fr)} .w1{grid-column:1/-1} .work.w1 .frame{aspect-ratio:1/1;height:auto} }
+@media (max-width:520px){ .works{grid-template-columns:1fr 1fr} .w4{grid-column:1/-1} .w4 .frame{aspect-ratio:4/5} }
 
 .process{background:var(--card);border-block:1px solid var(--line)}
 .steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:0}
