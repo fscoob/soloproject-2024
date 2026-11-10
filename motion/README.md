@@ -49,3 +49,10 @@ python3 code_typer.py fahad.json -o fahad_reel.mp4
 - `"result": {"image": "...png", "hold": 7}` تعرض صورة الموقع في النهاية وتمرّرها.
 - `"theme"` يغيّر الألوان: `cursor` و`title` و`handle` و`glow` و`bg` …
 - الخطوط العربية في `fonts/` (IBM Plex Sans Arabic، رخصة OFL).
+
+## موسيقى خلفية تعليمية (Lo-fi) بدون حقوق
+`lofi.py` يولّد موسيقى هادئة أصلية بالكود: بيانو كهربائي، باص، إيقاع خفيف، وخشخشة أسطوانة.
+```bash
+python3 lofi.py -o music.wav --seconds 50            # غيّر --seed للحن مختلف و--bpm للسرعة
+python3 code_typer.py fahad.json -o reel.mp4 --music music.wav --music-volume 0.7 --clicks-volume 0.55
+```
