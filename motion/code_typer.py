@@ -525,6 +525,7 @@ class Editor:
         off = self.scroll(t, file, rows)
         x0 = self.pad if term else self.x0
         self.layout = {}
+        self.panel_y0 = None
         for i, (text, full) in enumerate(shown):
             y = self.top + (i - off) * self.lh
             self.layout[i] = (y, x0, full)
@@ -552,6 +553,8 @@ class Editor:
         if panel_h:
             ph = int(min(show.img.height, self.h * 0.55))
             y0 = self.h - panel_h
+            if pa >= 0.999:
+                self.panel_y0 = y0
             im.paste(show.img.crop((0, 0, self.w, ph)), (0, y0))
             d.line((0, y0, self.w, y0), fill=th['cursor'], width=max(2, int(3 * self.k)))
             if t - show.at < 0.7:                      # شرارة عند ظهور النتيجة
@@ -608,6 +611,12 @@ class Editor:
             return (x1, y1 + self.tab_h, x2, y2 + self.tab_h)
         if full_mode or getattr(self, 'code_file', None) != N['file']:
             return None
+        if 'panel' in N:                                 # خلية في لوحة النتائج
+            y0 = getattr(self, 'panel_y0', None)
+            if y0 is None:
+                return None
+            x1, y1, x2, y2 = N['panel']
+            return (x1, y1 + y0, x2, y2 + y0)
         lay = getattr(self, 'layout', {}).get(N['line'])
         if lay is None:
             return None
@@ -684,7 +693,7 @@ class Editor:
                 b = self.bubble(N['note'])
                 bw, bh = b.size
                 side = N.get('side')
-                end = max(x2, N.get('_end', x2)) if 'rect' not in N else x2
+                end = max(x2, N.get('_end', x2)) if not ('rect' in N or 'panel' in N) else x2
                 if side is None:
                     side = 'right' if end + bw + 90 * k < self.w else ('below' if y2 + 2 * self.lh + bh < self.h * 0.62 else 'above')
                 if side == 'right' and end > x2 + 20 * k:      # بعد نهاية السطر، والسهم من فوق

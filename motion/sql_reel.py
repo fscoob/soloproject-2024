@@ -8,6 +8,7 @@ sql_reel.py — ريل SQL: قاعدة بيانات شركة (أقسام ← إ�
 3) يكتب ملف sql.json جاهز لـ code_typer.py
 
   python3 sql_reel.py                    # يجهّز assets/sql/*.png و sql.json
+  python3 sql_reel.py --spec sql_company # أي ملف مواصفات داخل specs/ (يكتبه سرب الوكلاء، راجع AGENTS.md)
   python3 lofi.py --style energetic -o assets/sql/music.wav --seconds 75
   python3 code_typer.py sql.json -o sql_reel.mp4 --music assets/sql/music.wav
 
@@ -15,6 +16,8 @@ sql_reel.py — ريل SQL: قاعدة بيانات شركة (أقسام ← إ�
 (ما عدا CREATE DATABASE / USE، وهذي يتجاوزها التنفيذ في SQLite ويعرض رسالتها).
 """
 
+import argparse
+import importlib
 import json
 import os
 import sqlite3
@@ -39,124 +42,6 @@ F_MONO_S = ImageFont.truetype(find_font(MONO), 21)
 F_AR = ImageFont.truetype(find_font(ARABIC), 25)
 F_TITLE = ImageFont.truetype(find_font(MONO), 30)
 F_AR_T = ImageFont.truetype(find_font(ARABIC), 30)
-
-
-# ------------------------------------------------------------ الخطوات
-
-BLOCKS = [
-    dict(file='01_database.sql', code=[
-        '-- 1) إنشاء قاعدة بيانات الشركة',
-        'CREATE DATABASE company;',
-        'USE company;',
-    ], result=('msg', ['Query OK, 1 row affected', 'Database changed → company'])),
-
-    dict(file='02_tables.sql', code=[
-        '-- 2) جدول الأقسام',
-        'CREATE TABLE departments (',
-        '  id   INT PRIMARY KEY,',
-        '  name VARCHAR(50) NOT NULL',
-        ');',
-    ], result=('schema', 'departments')),
-    dict(file='02_tables.sql', code=[
-        '',
-        '-- 3) الإدارات داخل كل قسم',
-        'CREATE TABLE divisions (',
-        '  id   INT PRIMARY KEY,',
-        '  name VARCHAR(50) NOT NULL,',
-        '  department_id INT,',
-        '  FOREIGN KEY (department_id)',
-        '    REFERENCES departments(id)',
-        ');',
-    ], result=('schema', 'divisions')),
-    dict(file='02_tables.sql', code=[
-        '',
-        '-- 4) الموظفين وبياناتهم',
-        'CREATE TABLE employees (',
-        '  id     INT PRIMARY KEY,',
-        '  name   VARCHAR(50) NOT NULL,',
-        '  job    VARCHAR(50),',
-        '  salary DECIMAL(10,2),',
-        '  division_id INT,',
-        '  FOREIGN KEY (division_id)',
-        '    REFERENCES divisions(id)',
-        ');',
-    ], result=('schema', 'employees')),
-    dict(file=None, code=[], result=('er', None)),          # مخطط العلاقات
-
-    dict(file='03_data.sql', code=[
-        '-- 5) إدخال البيانات',
-        'INSERT INTO departments VALUES',
-        "  (1, 'تقنية المعلومات'),",
-        "  (2, 'المالية'),",
-        "  (3, 'الموارد البشرية');",
-    ], result=('query', 'SELECT * FROM departments;')),
-    dict(file='03_data.sql', code=[
-        '',
-        'INSERT INTO divisions VALUES',
-        "  (1, 'البرمجة',  1),",
-        "  (2, 'الشبكات',  1),",
-        "  (3, 'الحسابات', 2),",
-        "  (4, 'التوظيف',  3);",
-    ], result=('query', 'SELECT * FROM divisions;')),
-    dict(file='03_data.sql', code=[
-        '',
-        'INSERT INTO employees VALUES',
-        "  (1, 'فهد',  'مطوّر',  12000, 1),",
-        "  (2, 'سارة', 'مهندسة شبكات', 11000, 2),",
-        "  (3, 'خالد', 'محاسب', 9500, 3),",
-        "  (4, 'نورة', 'أخصائية توظيف', 9000, 4),",
-        "  (5, 'ريم',  'مطوّرة', 12500, 1);",
-    ], result=('query', 'SELECT * FROM employees;')),
-
-    dict(file='04_join.sql', code=[
-        '-- 6) الربط: مين يشتغل وين؟',
-        'SELECT e.name,',
-        '       v.name AS division,',
-        '       d.name AS department',
-        'FROM employees e',
-        'JOIN divisions v',
-        '  ON v.id = e.division_id',
-        'JOIN departments d',
-        '  ON d.id = v.department_id;',
-    ], result=('query', None)),
-    dict(file='04_join.sql', code=[
-        '',
-        '-- 7) عدد الموظفين بكل قسم',
-        'SELECT d.name,',
-        '       COUNT(e.id)   AS staff,',
-        '       AVG(e.salary) AS avg_salary',
-        'FROM departments d',
-        'JOIN divisions v',
-        '  ON v.department_id = d.id',
-        'LEFT JOIN employees e',
-        '  ON e.division_id = v.id',
-        'GROUP BY d.id, d.name;',
-    ], result=('query', None)),
-]
-
-
-# شروحات كل خطوة: شريط الخطوة أسفل الفيديو + أسهم مساعدة على الكود
-# note: (رقم السطر داخل الكتلة, النص المستهدف, الشرح, نوع: arrow|spot, زوم, توقف)
-CAPTIONS = {
-    1: 'الخطوة 1: إنشاء قاعدة البيانات', 2: 'الخطوة 2: جدول الأقسام',
-    3: 'الخطوة 3: الإدارات داخل الأقسام', 4: 'الخطوة 4: جدول الموظفين',
-    5: 'العلاقات: قسم ← إدارات ← موظفين', 6: 'الخطوة 5: إدخال البيانات',
-    9: 'الخطوة 6: ربط الجداول بـ JOIN', 10: 'الخطوة 7: التجميع بـ GROUP BY',
-}
-NOTES = {
-    1: [(1, 'CREATE DATABASE', 'قاعدة جديدة اسمها company', 'arrow', None, 0.6)],
-    2: [(2, 'PRIMARY KEY', '🔑 مفتاح أساسي: رقم فريد', 'arrow', None, 0.6)],
-    3: [(7, 'REFERENCES departments(id)', '🔗 هنا الربط بالقسم', 'spot', 1.15, 1.4)],
-    4: [(9, 'REFERENCES divisions(id)', '🔗 كل موظف يتبع إدارة', 'spot', 1.15, 1.4)],
-    8: [(2, '1),', 'رقم الإدارة (FK)', 'arrow', None, 0.9)],
-    9: [(6, 'v.id = e.division_id', '🔑 = 🔗 نطابق المفتاحين', 'spot', 1.15, 1.3)],
-    10: [(3, 'COUNT(e.id)', 'نعدّ الموظفين', 'arrow', None, 0.8)],
-}
-# أسهم على مخطط العلاقات (إحداثيات داخل صورة ER)
-ER_NOTES = [
-    ((246, 558, 746, 602), '1 قسم ← عدة إدارات', -4.8, 1.7),
-    ((396, 962, 896, 1006), '1 إدارة ← عدة موظفين', -3.1, 1.75),
-]
 
 
 # ------------------------------------------------------------ الرسم
@@ -189,8 +74,13 @@ def fmt(v):
     return str(v)
 
 
+LAST_GRID = {}     # مواقع الخلايا لآخر جدول (لأسهم الشرح على لوحة النتائج)
+
+
 def grid_image(cols, rows, label, info, colors=None):
     rh, pad = 50, 20
+    LAST_GRID.clear()
+    LAST_GRID.update(cols=list(cols), rows=[fmt(r[0]) for r in rows], rects={})
     cells = [[fmt(v) for v in r] for r in rows]
     widths = [max([tw(c)] + [tw(r[i]) for r in cells]) + pad * 2 for i, c in enumerate(cols)]
     extra = max(0, WIDTH - 24 - sum(widths))
@@ -204,6 +94,7 @@ def grid_image(cols, rows, label, info, colors=None):
     d.rectangle((12, y, WIDTH - 12, y + rh), fill=C['head'])
     for i, c in enumerate(cols):
         draw_cell(d, x + pad, y + 11, c, C['gold'])
+        LAST_GRID['rects'][(-1, i)] = (x + 4, y, x + widths[i] - 4, y + rh)
         x += widths[i]
     for r_i, r in enumerate(cells):
         y += rh
@@ -212,6 +103,7 @@ def grid_image(cols, rows, label, info, colors=None):
         for i, v in enumerate(r):
             col = (colors[r_i][i] if colors else None) or C['text']
             draw_cell(d, x + pad, y + 11, v, col)
+            LAST_GRID['rects'][(r_i, i)] = (x + 4, y, x + widths[i] - 4, y + rh)
             x += widths[i]
     d.rectangle((12, 68, WIDTH - 12, y + rh), outline=C['line'], width=2)
     return im
@@ -297,7 +189,7 @@ def er_image(db):
     return im
 
 
-def outro_image():
+def outro_image(meta):
     """الختام: الختم + الاسم (يُبنى بتأثير Swarm Rebuild)."""
     im = Image.new('RGB', (WIDTH, FULL_H), C['bg'])
     d = ImageDraw.Draw(im)
@@ -306,39 +198,50 @@ def outro_image():
     seal = seal.resize((int(seal.width * sh / seal.height), sh), Image.LANCZOS)
     y = 190
     im.paste(seal, ((WIDTH - seal.width) // 2, y), seal)
-    name = 'F A H A D   M O H A M M E D'
+    name = meta.get('outro', {}).get('name', '')
     d.text(((WIDTH - F_TITLE.getlength(name)) / 2, y + sh + 70), name, font=F_TITLE, fill=C['gold'])
-    sub = 'SQL · Database Design'
+    sub = meta.get('outro', {}).get('sub', '')
     d.text(((WIDTH - F_MONO.getlength(sub)) / 2, y + sh + 130), sub, font=F_MONO, fill=C['text'])
     return im
 
 
 # ------------------------------------------------------------ التشغيل
 
+def panel_rect(key, col):
+    """مستطيل خلية في آخر جدول: key = قيمة أول عمود أو 'header'."""
+    c = LAST_GRID['cols'].index(col)
+    r = -1 if key == 'header' else LAST_GRID['rows'].index(key)
+    return list(LAST_GRID['rects'][(r, c)])
+
+
 def main():
-    os.makedirs(OUT, exist_ok=True)
+    ap = argparse.ArgumentParser(description='يجهّز ريل SQL من ملف مواصفات')
+    ap.add_argument('--spec', default='sql_company', help='اسم ملف داخل specs/')
+    a = ap.parse_args()
+    spec = importlib.import_module(f'specs.{a.spec}')
+    meta = spec.META
+    out_dir = os.path.join(HERE, meta.get('assets', f'assets/{a.spec}'))
+    os.makedirs(out_dir, exist_ok=True)
     db = sqlite3.connect(':memory:')
     db.execute('PRAGMA foreign_keys = ON')
-    lines = []
-    file = None
-    counts = {}
-    for n, b in enumerate(BLOCKS, 1):
+    lines, counts, file = [], {}, None
+    for n, b in enumerate(spec.BLOCKS, 1):
         kind, arg = b['result']
-        code = '\n'.join(b['code'])
         t0 = time.perf_counter()
-        sql = '\n'.join(l for l in b['code'] if not l.strip().upper().startswith(('CREATE DATABASE', 'USE ')))
+        sql = '\n'.join(l for l in b['code']
+                        if not l.strip().upper().startswith(('CREATE DATABASE', 'USE ')))
         rows = cols = None
+        LAST_GRID.clear()
         if kind == 'query':
-            q = arg or sql
             if arg:
                 db.executescript(sql)
-            cur = db.execute(q)
+            cur = db.execute(arg or sql)
             rows = cur.fetchall()
             cols = [c[0] for c in cur.description]
         elif sql.strip():
             db.executescript(sql)
         ms = (time.perf_counter() - t0) * 1000
-        path = os.path.join(OUT, f'step{n:02d}.png')
+        path = os.path.join(out_dir, f'step{n:02d}.png')
         if kind == 'msg':
             im, pane, label = msg_image(arg, f'{ms:.2f} ms'), 'bottom', 'Output'
         elif kind == 'schema':
@@ -346,19 +249,20 @@ def main():
         elif kind == 'er':
             im, pane, label = er_image(db), 'full', 'ER Diagram'
         else:
-            label = 'Results'
+            label, pane = 'Results', 'bottom'
             im = grid_image(cols, rows, label, f'✓ {len(rows)} rows · {ms:.2f} ms')
-            pane = 'bottom'
         im.save(path, optimize=True)
-        if b['file'] and b['file'] != file:
+
+        # --- الكود + أسهم الشرح بعد كل سطر
+        first = bool(b['file']) and b['file'] != file
+        if first:
             file = b['file']
-            first = True
             counts.setdefault(file, 0)
-        else:
-            first = False
-        if n in CAPTIONS and kind != 'er':
-            lines.append({'caption': CAPTIONS[n]})
-        notes = {nt[0]: nt for nt in NOTES.get(n, [])}
+        if n in spec.CAPTIONS and kind != 'er':
+            lines.append({'caption': spec.CAPTIONS[n]})
+        by_line = {}
+        for nt in spec.NOTES.get(n, []):
+            by_line.setdefault(nt['line'], []).append(nt)
         for i, c in enumerate(b['code']):
             ln = {'code': c}
             if first and i == 0:
@@ -366,43 +270,43 @@ def main():
             lines.append(ln)
             idx = counts[file]
             counts[file] += 1
-            if i in notes:
-                _, match, text, nkind, zoom, wait = notes[i]
-                note = {'note': text, 'match': match, 'line': idx, 'kind': nkind,
-                        'hold': 2.6 + wait, 'wait': wait}
-                if zoom:
-                    note['zoom'] = zoom
+            for nt in by_line.get(i, []):
+                note = {'note': nt['text'], 'match': nt['match'], 'line': idx,
+                        'kind': nt['kind'], 'wait': nt['wait'], 'hold': nt['wait'] + 0.45}
+                if nt.get('zoom'):
+                    note['zoom'] = nt['zoom']
+                    note['hold'] = nt['wait'] + 0.8
                 lines.append(note)
-        show = {'show': os.path.relpath(path, HERE), 'pane': pane, 'label': label,
-                'hold': 6.5 if pane == 'full' else (2.6 if kind == 'query' else 1.8)}
+
+        # --- عرض النتيجة + أسهم الشرح عليها
+        pnotes = spec.PANEL_NOTES.get(n, []) if pane == 'bottom' else []
+        hold = 6.8 if pane == 'full' else (2.6 if kind == 'query' else 1.8)
+        hold += 1.9 * len(pnotes)
+        show = {'show': os.path.relpath(path, HERE), 'pane': pane, 'label': label, 'hold': hold}
         if kind == 'er':
             show['transition'] = 'swarm'
-            lines.append({'caption': CAPTIONS[n], 'at_delay': True})
+            lines.append({'caption': spec.CAPTIONS[n]})
         lines.append(show)
+        for j, (key, col, text) in enumerate(pnotes):
+            lines.append({'note': text, 'panel': panel_rect(key, col), 'kind': 'spot',
+                          'side': 'above', 'delay': -(hold - 0.7 - 1.9 * j), 'hold': 1.8})
         if kind == 'er':
-            for rect, text, delay, hold in ER_NOTES:
+            for rect, text, delay, nhold in spec.ER_NOTES:
                 lines.append({'note': text, 'rect': list(rect), 'kind': 'spot',
-                              'delay': delay, 'hold': hold, 'zoom': 1.15})
+                              'delay': delay, 'hold': nhold, 'zoom': 1.12})
         print(f'step {n:02d} {kind:6s} ✓ {os.path.basename(path)}')
-    lines[-1]['hold'] = 2.8
-    out = os.path.join(OUT, 'outro.png')
-    outro_image().save(out, optimize=True)
+
+    out = os.path.join(out_dir, 'outro.png')
+    outro_image(meta).save(out, optimize=True)
     lines.append({'caption': ''})
     lines.append({'show': os.path.relpath(out, HERE), 'pane': 'full', 'label': 'FAHAD MOHAMMED',
                   'transition': 'swarm', 'out': False, 'hold': 4.6, 'delay': 0.1})
-    data = {
-        'mode': 'plain',
-        'title': 'قاعدة بيانات شركة بـ SQL 🔥',
-        'handle': 'F A H A D   M O H A M M E D',
-        'fps': 30, 'char_time': 0.022, 'gap': 0.06, 'file_pause': 0.45,
-        'theme': {'bg': '#0F1A17', 'tabbar': '#0A1210', 'tab': '#18262A', 'line_hl': '#1A2C26',
-                  'cursor': '#C8A45D', 'handle': '#C8A45D', 'title': '#F3EEE4',
-                  'glow': '#123A31', 'glow2': '#3A3020'},
-        'lines': lines,
-    }
-    with open(os.path.join(HERE, 'sql.json'), 'w', encoding='utf-8') as f:
+    data = {'mode': 'plain', 'title': meta['title'], 'handle': meta.get('handle', ''), 'fps': 30,
+            'char_time': meta.get('char_time', 0.024), 'gap': meta.get('gap', 0.06),
+            'file_pause': meta.get('file_pause', 0.45), 'theme': meta['theme'], 'lines': lines}
+    with open(os.path.join(HERE, meta.get('json', f'{a.spec}.json')), 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
-    print('✓ sql.json')
+    print('✓', meta.get('json', f'{a.spec}.json'))
 
 
 if __name__ == '__main__':

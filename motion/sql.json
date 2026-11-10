@@ -3,7 +3,7 @@
  "title": "قاعدة بيانات شركة بـ SQL 🔥",
  "handle": "F A H A D   M O H A M M E D",
  "fps": 30,
- "char_time": 0.022,
+ "char_time": 0.024,
  "gap": 0.06,
  "file_pause": 0.45,
  "theme": {
@@ -26,18 +26,50 @@
    "file": "01_database.sql"
   },
   {
+   "note": "سطر يبدأ بـ -- = تعليق، SQL يتجاهله",
+   "match": "--",
+   "line": 0,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
+  },
+  {
    "code": "CREATE DATABASE company;"
   },
   {
-   "note": "قاعدة جديدة اسمها company",
+   "note": "ننشئ قاعدة بيانات جديدة",
    "match": "CREATE DATABASE",
    "line": 1,
    "kind": "arrow",
-   "hold": 3.2,
-   "wait": 0.6
+   "wait": 1.1,
+   "hold": 1.55
+  },
+  {
+   "note": "اسم القاعدة",
+   "match": "company",
+   "line": 1,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
+  },
+  {
+   "note": "الفاصلة المنقوطة = نهاية الأمر",
+   "match": ";",
+   "line": 1,
+   "kind": "arrow",
+   "wait": 0.9,
+   "hold": 1.35
   },
   {
    "code": "USE company;"
+  },
+  {
+   "note": "نختار القاعدة اللي بنشتغل عليها",
+   "match": "USE",
+   "line": 2,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
   },
   {
    "show": "assets/sql/step01.png",
@@ -56,26 +88,95 @@
    "code": "CREATE TABLE departments ("
   },
   {
+   "note": "ننشئ جدول جديد",
+   "match": "CREATE TABLE",
+   "line": 1,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
+  },
+  {
+   "note": "اسم الجدول: الأقسام",
+   "match": "departments",
+   "line": 1,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
+  },
+  {
    "code": "  id   INT PRIMARY KEY,"
   },
   {
-   "note": "🔑 مفتاح أساسي: رقم فريد",
+   "note": "عمود رقم القسم",
+   "match": "id",
+   "line": 2,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
+  },
+  {
+   "note": "INT = رقم صحيح",
+   "match": "INT",
+   "line": 2,
+   "kind": "arrow",
+   "wait": 0.9,
+   "hold": 1.35
+  },
+  {
+   "note": "🔑 مفتاح أساسي: فريد ولا يتكرر",
    "match": "PRIMARY KEY",
    "line": 2,
    "kind": "arrow",
-   "hold": 3.2,
-   "wait": 0.6
+   "wait": 1.4,
+   "hold": 1.8499999999999999
   },
   {
    "code": "  name VARCHAR(50) NOT NULL"
   },
   {
+   "note": "نص لين 50 حرف",
+   "match": "VARCHAR(50)",
+   "line": 3,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
+  },
+  {
+   "note": "إجباري: ما يصير فاضي",
+   "match": "NOT NULL",
+   "line": 3,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
+  },
+  {
    "code": ");"
+  },
+  {
+   "note": "نهاية تعريف الجدول",
+   "match": ");",
+   "line": 4,
+   "kind": "arrow",
+   "wait": 0.8,
+   "hold": 1.25
   },
   {
    "show": "assets/sql/step02.png",
    "pane": "bottom",
    "label": "Results",
+   "hold": 3.7
+  },
+  {
+   "note": "PK = مفتاح أساسي",
+   "panel": [
+    605.828125,
+    118,
+    734.25,
+    168
+   ],
+   "kind": "spot",
+   "side": "above",
+   "delay": -3.0,
    "hold": 1.8
   },
   {
@@ -91,7 +192,23 @@
    "code": "CREATE TABLE divisions ("
   },
   {
+   "note": "جدول الإدارات",
+   "match": "divisions",
+   "line": 7,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
+  },
+  {
    "code": "  id   INT PRIMARY KEY,"
+  },
+  {
+   "note": "🔑 رقم فريد لكل إدارة",
+   "match": "PRIMARY KEY",
+   "line": 8,
+   "kind": "arrow",
+   "wait": 0.9,
+   "hold": 1.35
   },
   {
    "code": "  name VARCHAR(50) NOT NULL,"
@@ -100,18 +217,34 @@
    "code": "  department_id INT,"
   },
   {
+   "note": "عمود يحفظ رقم القسم التابع له",
+   "match": "department_id",
+   "line": 10,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
+  },
+  {
    "code": "  FOREIGN KEY (department_id)"
+  },
+  {
+   "note": "🔗 مفتاح أجنبي: يشير لجدول ثاني",
+   "match": "FOREIGN KEY",
+   "line": 11,
+   "kind": "arrow",
+   "wait": 1.3,
+   "hold": 1.75
   },
   {
    "code": "    REFERENCES departments(id)"
   },
   {
-   "note": "🔗 هنا الربط بالقسم",
+   "note": "🔗 مربوط بـ id في جدول الأقسام",
    "match": "REFERENCES departments(id)",
    "line": 12,
    "kind": "spot",
-   "hold": 4.0,
-   "wait": 1.4,
+   "wait": 1.6,
+   "hold": 2.4000000000000004,
    "zoom": 1.15
   },
   {
@@ -121,6 +254,19 @@
    "show": "assets/sql/step03.png",
    "pane": "bottom",
    "label": "Results",
+   "hold": 3.7
+  },
+  {
+   "note": "🔗 مربوط بجدول الأقسام",
+   "panel": [
+    703.1281250000001,
+    218,
+    976.0,
+    268
+   ],
+   "kind": "spot",
+   "side": "above",
+   "delay": -3.0,
    "hold": 1.8
   },
   {
@@ -136,22 +282,78 @@
    "code": "CREATE TABLE employees ("
   },
   {
+   "note": "جدول الموظفين",
+   "match": "employees",
+   "line": 16,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
+  },
+  {
    "code": "  id     INT PRIMARY KEY,"
+  },
+  {
+   "note": "🔑 رقم الموظف",
+   "match": "id",
+   "line": 17,
+   "kind": "arrow",
+   "wait": 0.9,
+   "hold": 1.35
   },
   {
    "code": "  name   VARCHAR(50) NOT NULL,"
   },
   {
+   "note": "الاسم إجباري",
+   "match": "NOT NULL",
+   "line": 18,
+   "kind": "arrow",
+   "wait": 0.9,
+   "hold": 1.35
+  },
+  {
    "code": "  job    VARCHAR(50),"
+  },
+  {
+   "note": "المسمى الوظيفي (اختياري)",
+   "match": "job",
+   "line": 19,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
   },
   {
    "code": "  salary DECIMAL(10,2),"
   },
   {
+   "note": "رقم عشري: 10 خانات، منها 2 بعد الفاصلة",
+   "match": "DECIMAL(10,2)",
+   "line": 20,
+   "kind": "arrow",
+   "wait": 1.4,
+   "hold": 1.8499999999999999
+  },
+  {
    "code": "  division_id INT,"
   },
   {
+   "note": "رقم الإدارة اللي يتبع لها",
+   "match": "division_id",
+   "line": 21,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
+  },
+  {
    "code": "  FOREIGN KEY (division_id)"
+  },
+  {
+   "note": "🔗 مفتاح أجنبي ثاني",
+   "match": "FOREIGN KEY",
+   "line": 22,
+   "kind": "arrow",
+   "wait": 0.9,
+   "hold": 1.35
   },
   {
    "code": "    REFERENCES divisions(id)"
@@ -161,8 +363,8 @@
    "match": "REFERENCES divisions(id)",
    "line": 23,
    "kind": "spot",
-   "hold": 4.0,
-   "wait": 1.4,
+   "wait": 1.6,
+   "hold": 2.4000000000000004,
    "zoom": 1.15
   },
   {
@@ -172,18 +374,43 @@
    "show": "assets/sql/step04.png",
    "pane": "bottom",
    "label": "Results",
+   "hold": 3.7
+  },
+  {
+   "note": "🔗 مربوط بجدول الإدارات",
+   "panel": [
+    727.203125,
+    318,
+    976.0,
+    368
+   ],
+   "kind": "spot",
+   "side": "above",
+   "delay": -3.0,
    "hold": 1.8
   },
   {
-   "caption": "العلاقات: قسم ← إدارات ← موظفين",
-   "at_delay": true
+   "caption": "العلاقات: قسم ← إدارات ← موظفين"
   },
   {
    "show": "assets/sql/step05.png",
    "pane": "full",
    "label": "ER Diagram",
-   "hold": 6.5,
+   "hold": 6.8,
    "transition": "swarm"
+  },
+  {
+   "note": "PK: المفتاح الأساسي لكل قسم",
+   "rect": [
+    96,
+    198,
+    596,
+    242
+   ],
+   "kind": "spot",
+   "delay": -6.0,
+   "hold": 1.3,
+   "zoom": 1.12
   },
   {
    "note": "1 قسم ← عدة إدارات",
@@ -194,9 +421,9 @@
     602
    ],
    "kind": "spot",
-   "delay": -4.8,
-   "hold": 1.7,
-   "zoom": 1.15
+   "delay": -4.6,
+   "hold": 1.5,
+   "zoom": 1.12
   },
   {
    "note": "1 إدارة ← عدة موظفين",
@@ -207,9 +434,9 @@
     1006
    ],
    "kind": "spot",
-   "delay": -3.1,
-   "hold": 1.75,
-   "zoom": 1.15
+   "delay": -3.0,
+   "hold": 1.6,
+   "zoom": 1.12
   },
   {
    "caption": "الخطوة 5: إدخال البيانات"
@@ -222,13 +449,45 @@
    "code": "INSERT INTO departments VALUES"
   },
   {
+   "note": "نضيف صفوف للجدول",
+   "match": "INSERT INTO",
+   "line": 1,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
+  },
+  {
+   "note": "القيم بنفس ترتيب الأعمدة",
+   "match": "VALUES",
+   "line": 1,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
+  },
+  {
    "code": "  (1, 'تقنية المعلومات'),"
+  },
+  {
+   "note": "النص يُكتب بين ' '",
+   "match": "'تقنية المعلومات'",
+   "line": 2,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
   },
   {
    "code": "  (2, 'المالية'),"
   },
   {
    "code": "  (3, 'الموارد البشرية');"
+  },
+  {
+   "note": "آخر صف ينتهي بـ ; وما قبله بـ ,",
+   "match": ";",
+   "line": 4,
+   "kind": "arrow",
+   "wait": 1.3,
+   "hold": 1.75
   },
   {
    "show": "assets/sql/step06.png",
@@ -246,10 +505,26 @@
    "code": "  (1, 'البرمجة',  1),"
   },
   {
+   "note": "رقم القسم: 1 = تقنية المعلومات",
+   "match": "1),",
+   "line": 7,
+   "kind": "arrow",
+   "wait": 1.3,
+   "hold": 1.75
+  },
+  {
    "code": "  (2, 'الشبكات',  1),"
   },
   {
    "code": "  (3, 'الحسابات', 2),"
+  },
+  {
+   "note": "2 = المالية",
+   "match": "2),",
+   "line": 9,
+   "kind": "arrow",
+   "wait": 0.9,
+   "hold": 1.35
   },
   {
    "code": "  (4, 'التوظيف',  3);"
@@ -270,15 +545,31 @@
    "code": "  (1, 'فهد',  'مطوّر',  12000, 1),"
   },
   {
-   "note": "رقم الإدارة (FK)",
+   "note": "الراتب",
+   "match": "12000",
+   "line": 13,
+   "kind": "arrow",
+   "wait": 0.9,
+   "hold": 1.35
+  },
+  {
+   "note": "رقم الإدارة (FK) = البرمجة",
    "match": "1),",
    "line": 13,
    "kind": "arrow",
-   "hold": 3.5,
-   "wait": 0.9
+   "wait": 1.3,
+   "hold": 1.75
   },
   {
    "code": "  (2, 'سارة', 'مهندسة شبكات', 11000, 2),"
+  },
+  {
+   "note": "المسمى الوظيفي",
+   "match": "'مهندسة شبكات'",
+   "line": 14,
+   "kind": "arrow",
+   "wait": 0.9,
+   "hold": 1.35
   },
   {
    "code": "  (3, 'خالد', 'محاسب', 9500, 3),"
@@ -293,7 +584,20 @@
    "show": "assets/sql/step08.png",
    "pane": "bottom",
    "label": "Results",
-   "hold": 2.6
+   "hold": 4.5
+  },
+  {
+   "note": "أرقام الإدارات (FK)",
+   "panel": [
+    724.68125,
+    68,
+    976.0,
+    118
+   ],
+   "kind": "spot",
+   "side": "above",
+   "delay": -3.8,
+   "hold": 1.8
   },
   {
    "caption": "الخطوة 6: ربط الجداول بـ JOIN"
@@ -306,7 +610,31 @@
    "code": "SELECT e.name,"
   },
   {
+   "note": "نختار الأعمدة اللي نبي نعرضها",
+   "match": "SELECT",
+   "line": 1,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
+  },
+  {
+   "note": "e = اختصار جدول الموظفين",
+   "match": "e.name",
+   "line": 1,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
+  },
+  {
    "code": "       v.name AS division,"
+  },
+  {
+   "note": "AS = اسم جديد للعمود في النتيجة",
+   "match": "AS",
+   "line": 2,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
   },
   {
    "code": "       d.name AS department"
@@ -315,7 +643,23 @@
    "code": "FROM employees e"
   },
   {
+   "note": "نبدأ من جدول الموظفين",
+   "match": "FROM employees e",
+   "line": 4,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
+  },
+  {
    "code": "JOIN divisions v"
+  },
+  {
+   "note": "نضم جدول الإدارات",
+   "match": "JOIN",
+   "line": 5,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
   },
   {
    "code": "  ON v.id = e.division_id"
@@ -325,8 +669,8 @@
    "match": "v.id = e.division_id",
    "line": 6,
    "kind": "spot",
-   "hold": 3.9000000000000004,
-   "wait": 1.3,
+   "wait": 1.6,
+   "hold": 2.4000000000000004,
    "zoom": 1.15
   },
   {
@@ -336,10 +680,31 @@
    "code": "  ON d.id = v.department_id;"
   },
   {
+   "note": "وكل إدارة ← قسمها",
+   "match": "d.id = v.department_id",
+   "line": 8,
+   "kind": "spot",
+   "wait": 1.4,
+   "hold": 1.8499999999999999
+  },
+  {
    "show": "assets/sql/step09.png",
    "pane": "bottom",
    "label": "Results",
-   "hold": 2.6
+   "hold": 4.5
+  },
+  {
+   "note": "جاي من جدول ثالث عبر الربط",
+   "panel": [
+    620.1354166666667,
+    68,
+    976.0000000000001,
+    118
+   ],
+   "kind": "spot",
+   "side": "above",
+   "delay": -3.8,
+   "hold": 1.8
   },
   {
    "caption": "الخطوة 7: التجميع بـ GROUP BY"
@@ -361,11 +726,19 @@
    "match": "COUNT(e.id)",
    "line": 12,
    "kind": "arrow",
-   "hold": 3.4000000000000004,
-   "wait": 0.8
+   "wait": 1.1,
+   "hold": 1.55
   },
   {
    "code": "       AVG(e.salary) AS avg_salary"
+  },
+  {
+   "note": "متوسط الرواتب",
+   "match": "AVG(e.salary)",
+   "line": 13,
+   "kind": "arrow",
+   "wait": 1.1,
+   "hold": 1.55
   },
   {
    "code": "FROM departments d"
@@ -380,16 +753,46 @@
    "code": "LEFT JOIN employees e"
   },
   {
+   "note": "يشمل حتى الإدارات اللي ما فيها موظفين",
+   "match": "LEFT JOIN",
+   "line": 17,
+   "kind": "arrow",
+   "wait": 1.5,
+   "hold": 1.95
+  },
+  {
    "code": "  ON e.division_id = v.id"
   },
   {
    "code": "GROUP BY d.id, d.name;"
   },
   {
+   "note": "نجمع النتيجة لكل قسم",
+   "match": "GROUP BY",
+   "line": 19,
+   "kind": "spot",
+   "wait": 1.6,
+   "hold": 2.4000000000000004,
+   "zoom": 1.15
+  },
+  {
    "show": "assets/sql/step10.png",
    "pane": "bottom",
    "label": "Results",
-   "hold": 2.8
+   "hold": 4.5
+  },
+  {
+   "note": "نتيجة COUNT لكل قسم",
+   "panel": [
+    364.81770833333337,
+    68,
+    628.7916666666667,
+    118
+   ],
+   "kind": "spot",
+   "side": "above",
+   "delay": -3.8,
+   "hold": 1.8
   },
   {
    "caption": ""
