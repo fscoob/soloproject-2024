@@ -1,0 +1,38 @@
+# Motion v1 — مونتاج «كأنك تكتب الكود»
+
+يولّد ريل 9:16 لشاشة على مكتب تُكتب عليها أسطر كود حرفاً حرفاً بالتوقيت اللي تحدده
+(على إيقاع أغنية مثلاً)، مع صوت كيبورد وعنوان وحركة كاميرا خفيفة.
+
+## المتطلبات
+Python 3 + `pip install pillow numpy` + ffmpeg
+
+## الاستخدام
+```bash
+python3 code_typer.py example.json -o reel.mp4                       # مشهد مرسوم تلقائياً
+python3 code_typer.py example.json -o reel.mp4 --music song.mp3 --music-start 62
+python3 code_typer.py example.json --preview 6 -o frame.png          # معاينة إطار واحد
+```
+
+### صورتك الحقيقية بدل المشهد المرسوم
+صوّر شاشتك (عمودي) وحدد زواياها الأربع بالبكسل: أعلى يسار، أعلى يمين، أسفل يمين، أسفل يسار:
+```bash
+python3 code_typer.py example.json -o reel.mp4 --bg desk.jpg --screen 120,610,980,650,975,1150,115,1190
+```
+
+## ملف السكربت (JSON)
+```json
+{
+  "title": "Claude + Motion V1 = 🤯",
+  "handle": "@your.handle",
+  "file": "dream.js",
+  "lines": [
+    {"at": 0.4, "type": 0.9, "code": "// 1:47"},
+    {"at": 1.8, "type": 2.2, "code": "while (alive) dream.big();"}
+  ]
+}
+```
+- `at`: ثانية بداية كتابة السطر — طابقها مع بداية كل جملة في الأغنية
+- `type`: كم ثانية تستغرق كتابته
+- `duration` (اختياري): طول الفيديو، الافتراضي = آخر سطر + 2.5 ث
+
+خيارات أخرى: `--music-volume`، `--clicks-volume`، `--no-clicks`.

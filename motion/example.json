@@ -1,0 +1,14 @@
+{
+  "title": "Claude + Motion V1 = 🤯",
+  "handle": "@your.handle",
+  "file": "dream.js",
+  "fps": 30,
+  "lines": [
+    {"at": 0.4, "type": 0.9, "code": "// 1:47"},
+    {"at": 1.6, "type": 0.1, "code": ""},
+    {"at": 1.8, "type": 2.2, "code": "while (alive) dream.big();"},
+    {"at": 4.4, "type": 2.4, "code": "if (they.doubt(me)) me.work(harder);"},
+    {"at": 7.2, "type": 1.8, "code": "late.nights(\"no sleep\");"},
+    {"at": 9.3, "type": 1.6, "code": "return legacy; // 🤫"}
+  ]
+}
