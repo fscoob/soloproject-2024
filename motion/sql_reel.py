@@ -26,6 +26,7 @@ import time
 from PIL import Image, ImageDraw, ImageFont
 
 from code_typer import ARABIC, MONO, find_font, is_arabic, hex_rgb
+import ui_studio
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, 'assets', 'sql')
@@ -280,7 +281,7 @@ def main():
 
         # --- عرض النتيجة + أسهم الشرح عليها
         pnotes = spec.PANEL_NOTES.get(n, []) if pane == 'bottom' else []
-        hold = 6.8 if pane == 'full' else (2.6 if kind == 'query' else 1.8)
+        hold = 6.8 if pane == 'full' else (2.0 if kind == 'query' else 1.4)
         hold += 1.9 * len(pnotes)
         show = {'show': os.path.relpath(path, HERE), 'pane': pane, 'label': label, 'hold': hold}
         if kind == 'er':
@@ -294,6 +295,29 @@ def main():
             for rect, text, delay, nhold in spec.ER_NOTES:
                 lines.append({'note': text, 'rect': list(rect), 'kind': 'spot',
                               'delay': delay, 'hold': nhold, 'zoom': 1.12})
+        # --- واجهة DB Studio: أثر الخطوة بشكل جمالي
+        ui = getattr(spec, 'UI', {}).get(n)
+        if ui:
+            view, arg2, text = ui
+            dbn = meta.get('dbname', 'db')
+            if view == 'db':
+                uim, rect = ui_studio.ui_db(db, dbn)
+            elif view in ('table', 'table_fk'):
+                uim, rect = ui_studio.ui_table(db, dbn, arg2, target_fk=view == 'table_fk')
+            elif view == 'data':
+                uim, rect = ui_studio.ui_data(db, dbn, *arg2)
+            elif view == 'query':
+                uim, rect = ui_studio.ui_query(db, dbn, sql, arg2)
+            else:
+                uim, rect = ui_studio.ui_chart(db, dbn, sql)
+            upath = os.path.join(out_dir, f'ui{n:02d}.png')
+            uim.save(upath, optimize=True)
+            uhold = 3.4
+            lines.append({'show': os.path.relpath(upath, HERE), 'pane': 'full', 'label': 'DB Studio',
+                          'transition': 'pop', 'hold': uhold, 'delay': 0.15})
+            if rect:
+                lines.append({'note': text, 'rect': [int(v) for v in rect], 'kind': 'spot',
+                              'delay': -(uhold - 0.8), 'hold': 2.2})
         print(f'step {n:02d} {kind:6s} ✓ {os.path.basename(path)}')
 
     out = os.path.join(out_dir, 'outro.png')

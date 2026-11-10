@@ -18,6 +18,7 @@ META = {
     'theme': {'bg': '#0F1A17', 'tabbar': '#0A1210', 'tab': '#18262A', 'line_hl': '#1A2C26',
               'cursor': '#C8A45D', 'handle': '#C8A45D', 'title': '#F3EEE4',
               'glow': '#123A31', 'glow2': '#3A3020'},
+    'dbname': 'company',
     'outro': {'name': 'F A H A D   M O H A M M E D', 'sub': 'SQL · Database Design'},
 }
 
@@ -200,4 +201,18 @@ PANEL_NOTES = {
     8: [('header', 'division_id', 'أرقام الإدارات (FK)')],
     9: [('header', 'department', 'جاي من جدول ثالث عبر الربط')],
     10: [('header', 'staff', 'نتيجة COUNT لكل قسم')],
+}
+
+# ------------------------------------------------------------ وكيل التصميم: واجهة DB Studio
+# بعد كل خطوة تظهر واجهة تطبيق قاعدة بيانات توضّح أثرها: (العرض, المعطى, شرح السهم)
+UI = {
+    1: ('db', None, 'ظهرت القاعدة هنا ✓'),
+    2: ('table', 'departments', 'الجدول الجديد ظهر ✓'),
+    3: ('table_fk', 'divisions', '🔗 الربط ظاهر في الواجهة'),
+    4: ('table_fk', 'employees', '🔗 مربوط بجدول الإدارات'),
+    6: ('data', ('departments', 3), '+3 صفوف جديدة'),
+    7: ('data', ('divisions', 4), 'كل إدارة ومعها رقم قسمها'),
+    8: ('data', ('employees', 5), '+5 موظفين'),
+    9: ('query', ['employees', 'divisions', 'departments'], 'مسار الربط بين الجداول'),
+    10: ('chart', None, 'أكبر قسم: تقنية المعلومات'),
 }

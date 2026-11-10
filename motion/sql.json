@@ -75,7 +75,27 @@
    "show": "assets/sql/step01.png",
    "pane": "bottom",
    "label": "Output",
-   "hold": 1.8
+   "hold": 1.4
+  },
+  {
+   "show": "assets/sql/ui01.png",
+   "pane": "full",
+   "label": "DB Studio",
+   "transition": "pop",
+   "hold": 3.4,
+   "delay": 0.15
+  },
+  {
+   "note": "ظهرت القاعدة هنا ✓",
+   "rect": [
+    10,
+    116,
+    312,
+    162
+   ],
+   "kind": "spot",
+   "delay": -2.5999999999999996,
+   "hold": 2.2
   },
   {
    "caption": "الخطوة 2: جدول الأقسام"
@@ -164,7 +184,7 @@
    "show": "assets/sql/step02.png",
    "pane": "bottom",
    "label": "Results",
-   "hold": 3.7
+   "hold": 3.3
   },
   {
    "note": "PK = مفتاح أساسي",
@@ -176,8 +196,28 @@
    ],
    "kind": "spot",
    "side": "above",
-   "delay": -3.0,
+   "delay": -2.5999999999999996,
    "hold": 1.8
+  },
+  {
+   "show": "assets/sql/ui02.png",
+   "pane": "full",
+   "label": "DB Studio",
+   "transition": "pop",
+   "hold": 3.4,
+   "delay": 0.15
+  },
+  {
+   "note": "الجدول الجديد ظهر ✓",
+   "rect": [
+    26,
+    208,
+    312,
+    250
+   ],
+   "kind": "spot",
+   "delay": -2.5999999999999996,
+   "hold": 2.2
   },
   {
    "caption": "الخطوة 3: الإدارات داخل الأقسام"
@@ -254,7 +294,7 @@
    "show": "assets/sql/step03.png",
    "pane": "bottom",
    "label": "Results",
-   "hold": 3.7
+   "hold": 3.3
   },
   {
    "note": "🔗 مربوط بجدول الأقسام",
@@ -266,8 +306,28 @@
    ],
    "kind": "spot",
    "side": "above",
-   "delay": -3.0,
+   "delay": -2.5999999999999996,
    "hold": 1.8
+  },
+  {
+   "show": "assets/sql/ui03.png",
+   "pane": "full",
+   "label": "DB Studio",
+   "transition": "pop",
+   "hold": 3.4,
+   "delay": 0.15
+  },
+  {
+   "note": "🔗 الربط ظاهر في الواجهة",
+   "rect": [
+    709,
+    501,
+    952,
+    545
+   ],
+   "kind": "spot",
+   "delay": -2.5999999999999996,
+   "hold": 2.2
   },
   {
    "caption": "الخطوة 4: جدول الموظفين"
@@ -374,7 +434,7 @@
    "show": "assets/sql/step04.png",
    "pane": "bottom",
    "label": "Results",
-   "hold": 3.7
+   "hold": 3.3
   },
   {
    "note": "🔗 مربوط بجدول الإدارات",
@@ -386,8 +446,28 @@
    ],
    "kind": "spot",
    "side": "above",
-   "delay": -3.0,
+   "delay": -2.5999999999999996,
    "hold": 1.8
+  },
+  {
+   "show": "assets/sql/ui04.png",
+   "pane": "full",
+   "label": "DB Studio",
+   "transition": "pop",
+   "hold": 3.4,
+   "delay": 0.15
+  },
+  {
+   "note": "🔗 مربوط بجدول الإدارات",
+   "rect": [
+    731,
+    685,
+    952,
+    729
+   ],
+   "kind": "spot",
+   "delay": -2.5999999999999996,
+   "hold": 2.2
   },
   {
    "caption": "العلاقات: قسم ← إدارات ← موظفين"
@@ -493,7 +573,27 @@
    "show": "assets/sql/step06.png",
    "pane": "bottom",
    "label": "Results",
-   "hold": 2.6
+   "hold": 2.0
+  },
+  {
+   "show": "assets/sql/ui06.png",
+   "pane": "full",
+   "label": "DB Studio",
+   "transition": "pop",
+   "hold": 3.4,
+   "delay": 0.15
+  },
+  {
+   "note": "+3 صفوف جديدة",
+   "rect": [
+    350,
+    314,
+    964,
+    368
+   ],
+   "kind": "spot",
+   "delay": -2.5999999999999996,
+   "hold": 2.2
   },
   {
    "code": ""
@@ -533,7 +633,27 @@
    "show": "assets/sql/step07.png",
    "pane": "bottom",
    "label": "Results",
-   "hold": 2.6
+   "hold": 2.0
+  },
+  {
+   "show": "assets/sql/ui07.png",
+   "pane": "full",
+   "label": "DB Studio",
+   "transition": "pop",
+   "hold": 3.4,
+   "delay": 0.15
+  },
+  {
+   "note": "كل إدارة ومعها رقم قسمها",
+   "rect": [
+    350,
+    314,
+    964,
+    368
+   ],
+   "kind": "spot",
+   "delay": -2.5999999999999996,
+   "hold": 2.2
   },
   {
    "code": ""
@@ -584,7 +704,7 @@
    "show": "assets/sql/step08.png",
    "pane": "bottom",
    "label": "Results",
-   "hold": 4.5
+   "hold": 3.9
   },
   {
    "note": "أرقام الإدارات (FK)",
@@ -596,8 +716,28 @@
    ],
    "kind": "spot",
    "side": "above",
-   "delay": -3.8,
+   "delay": -3.2,
    "hold": 1.8
+  },
+  {
+   "show": "assets/sql/ui08.png",
+   "pane": "full",
+   "label": "DB Studio",
+   "transition": "pop",
+   "hold": 3.4,
+   "delay": 0.15
+  },
+  {
+   "note": "+5 موظفين",
+   "rect": [
+    350,
+    314,
+    964,
+    368
+   ],
+   "kind": "spot",
+   "delay": -2.5999999999999996,
+   "hold": 2.2
   },
   {
    "caption": "الخطوة 6: ربط الجداول بـ JOIN"
@@ -691,7 +831,7 @@
    "show": "assets/sql/step09.png",
    "pane": "bottom",
    "label": "Results",
-   "hold": 4.5
+   "hold": 3.9
   },
   {
    "note": "جاي من جدول ثالث عبر الربط",
@@ -703,8 +843,28 @@
    ],
    "kind": "spot",
    "side": "above",
-   "delay": -3.8,
+   "delay": -3.2,
    "hold": 1.8
+  },
+  {
+   "show": "assets/sql/ui09.png",
+   "pane": "full",
+   "label": "DB Studio",
+   "transition": "pop",
+   "hold": 3.4,
+   "delay": 0.15
+  },
+  {
+   "note": "مسار الربط بين الجداول",
+   "rect": [
+    344,
+    238,
+    914,
+    300
+   ],
+   "kind": "spot",
+   "delay": -2.5999999999999996,
+   "hold": 2.2
   },
   {
    "caption": "الخطوة 7: التجميع بـ GROUP BY"
@@ -779,7 +939,7 @@
    "show": "assets/sql/step10.png",
    "pane": "bottom",
    "label": "Results",
-   "hold": 4.5
+   "hold": 3.9
   },
   {
    "note": "نتيجة COUNT لكل قسم",
@@ -791,8 +951,28 @@
    ],
    "kind": "spot",
    "side": "above",
-   "delay": -3.8,
+   "delay": -3.2,
    "hold": 1.8
+  },
+  {
+   "show": "assets/sql/ui10.png",
+   "pane": "full",
+   "label": "DB Studio",
+   "transition": "pop",
+   "hold": 3.4,
+   "delay": 0.15
+  },
+  {
+   "note": "أكبر قسم: تقنية المعلومات",
+   "rect": [
+    364,
+    320,
+    844,
+    370
+   ],
+   "kind": "spot",
+   "delay": -2.5999999999999996,
+   "hold": 2.2
   },
   {
    "caption": ""

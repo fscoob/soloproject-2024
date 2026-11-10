@@ -739,6 +739,16 @@ class Editor:
         S, fa = self.full_show(t)
         if S is not None and S.transition == 'swarm':
             return self.swarm_view(S, t)
+        if S is not None and S.transition == 'pop':       # تكبير ناعم مع ظهور تدريجي
+            fv = self.full_view(S)
+            if fa >= 1:
+                return fv
+            base = self.code_view(t)
+            sc = 0.9 + 0.1 * fa
+            sm = fv.resize((int(self.w * sc), int(self.h * sc)), Image.BILINEAR)
+            canvas = base.copy()
+            canvas.paste(sm, ((self.w - sm.width) // 2, (self.h - sm.height) // 2))
+            return Image.blend(base, canvas, fa)
         if S is not None:
             base = self.code_view(t)
             return Image.blend(base, self.full_view(S), fa) if fa < 1 else self.full_view(S)
