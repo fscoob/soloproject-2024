@@ -6,12 +6,17 @@
 - فلاتر: أبيض وأسود، سيبيا، دافئ، بارد، تنعيم، حدّة، فينيت، رسم
 - أدوات: تدوير، قلب، قص مربع / 4:5 / 9:16
 - منزلقات: سطوع، تباين، تشبّع، دفء
+- موشن: تقريب/إبعاد (Ken Burns)، تحريك يمين/يسار، نبض، ظهور تدريجي
+  مع معاينة متحركة وحفظ/مشاركة كـ GIF
 - تراجع، إعادة ضبط، حفظ في الألبوم، مشاركة
 
 التشغيل: افتح الملف في Pythonista واضغط ▶︎
 """
 
 import io
+import math
+import os
+import tempfile
 
 import ui
 import photos
@@ -25,6 +30,10 @@ BG = '#111418'
 PANEL = '#1c2128'
 ACCENT = '#f2a33a'
 TEXT = '#e6e6e6'
+
+MOTION_MAX = 640        # أقصى بُعد لإطارات الموشن (حجم GIF معقول)
+MOTION_FRAMES = 36      # عدد الإطارات
+MOTION_FPS = 12         # سرعة العرض (≈ 3 ثوانٍ)
 
 
 # ----------------------------------------------------------------- أدوات PIL
@@ -140,6 +149,77 @@ def apply_adjustments(img, adj):
     return img
 
 
+# ---------------------------------------------------------------- الموشن
+
+def ease(t):
+    """تسارع ثم تباطؤ ناعم (ease-in-out)."""
+    return 0.5 - 0.5 * math.cos(math.pi * t)
+
+
+def zoom_frame(img, scale, cx=0.5, cy=0.5):
+    """إطار مقرّب بمقدار scale (≥ 1) حول المركز النسبي (cx, cy)."""
+    w, h = img.size
+    cw, ch = w / scale, h / scale
+    left = min(max(cx * w - cw / 2, 0), w - cw)
+    top = min(max(cy * h - ch / 2, 0), h - ch)
+    # صندوق بإحداثيات عشرية لحركة ناعمة بلا اهتزاز
+    return img.resize((w, h), Image.BICUBIC,
+                      box=(left, top, left + cw, top + ch))
+
+
+def motion_zoom_in(img, t):
+    return zoom_frame(img, 1 + 0.25 * ease(t))
+
+
+def motion_zoom_out(img, t):
+    return zoom_frame(img, 1.25 - 0.25 * ease(t))
+
+
+def motion_pan_right(img, t):
+    return zoom_frame(img, 1.2, cx=ease(t))
+
+
+def motion_pan_left(img, t):
+    return zoom_frame(img, 1.2, cx=1 - ease(t))
+
+
+def motion_pulse(img, t):
+    # نبضتان خفيفتان، الإطار الأول = الأخير لتكرار سلس
+    return zoom_frame(img, 1 + 0.06 * (0.5 - 0.5 * math.cos(4 * math.pi * t)))
+
+
+def motion_fade_in(img, t):
+    black = Image.new('RGB', img.size, 0)
+    return Image.blend(black, img, ease(min(1.0, t * 1.5)))
+
+
+MOTIONS = [
+    ('⊕ تقريب', motion_zoom_in),
+    ('⊖ إبعاد', motion_zoom_out),
+    ('→ يمين', motion_pan_right),
+    ('← يسار', motion_pan_left),
+    ('♡ نبض', motion_pulse),
+    ('◐ ظهور', motion_fade_in),
+]
+
+
+def render_motion(img, func, frames=MOTION_FRAMES, max_side=MOTION_MAX):
+    """توليد إطارات الموشن (قائمة صور PIL)."""
+    base = downscale(img.convert('RGB'), max_side)
+    n = max(2, frames)
+    return [func(base, i / (n - 1)) for i in range(n)]
+
+
+def save_gif(frames, path, fps=MOTION_FPS):
+    duration = int(round(1000 / fps))
+    # لوحة ألوان واحدة مشتركة: حجم أصغر وبلا وميض بين الإطارات
+    ref = frames[len(frames) // 2].quantize(colors=255, method=Image.MEDIANCUT)
+    pal = [f.quantize(palette=ref, dither=Image.NONE) for f in frames]
+    pal[0].save(path, save_all=True, append_images=pal[1:],
+                duration=duration, loop=0, optimize=True, disposal=2)
+    return path
+
+
 # ---------------------------------------------------------------- الواجهة
 
 class PhotoEditor(ui.View):
@@ -155,6 +235,10 @@ class PhotoEditor(ui.View):
         self.undo = []
         self.busy = False
         self.adj = self.default_adj()
+        self.motion_frames = None   # إطارات PIL الحالية
+        self.motion_ui = None       # نفس الإطارات كـ ui.Image للعرض
+        self.motion_index = 0
+        self.playing = False
 
         # أزرار شريط العنوان
         self.left_button_items = [
@@ -183,7 +267,7 @@ class PhotoEditor(ui.View):
         self.panel = ui.View(background_color=PANEL)
         self.add_subview(self.panel)
 
-        self.tabs = ui.SegmentedControl(segments=['فلاتر', 'تعديل', 'أدوات'])
+        self.tabs = ui.SegmentedControl(segments=['فلاتر', 'تعديل', 'أدوات', 'موشن'])
         self.tabs.selected_index = 0
         self.tabs.action = self.tab_changed
         self.panel.add_subview(self.tabs)
@@ -192,7 +276,11 @@ class PhotoEditor(ui.View):
         self.tool_strip = self.make_strip(
             TOOLS + [('⟲ الأصل', None)], self.tool_tapped)
         self.adjust_view = self.make_sliders()
-        for v in (self.filter_strip, self.tool_strip, self.adjust_view):
+        self.motion_strip = self.make_strip(
+            MOTIONS + [('■ إيقاف', 'stop'), ('⤓ حفظ GIF', 'save'),
+                       ('⇪ مشاركة', 'share')], self.motion_tapped)
+        for v in (self.filter_strip, self.tool_strip, self.adjust_view,
+                  self.motion_strip):
             self.panel.add_subview(v)
         self.tab_changed(self.tabs)
 
@@ -246,6 +334,7 @@ class PhotoEditor(ui.View):
         self.filter_strip.frame = content
         self.tool_strip.frame = content
         self.adjust_view.frame = content
+        self.motion_strip.frame = content
         row = (panel_h - 46) / len(SLIDERS)
         for i, (key, _, _, _) in enumerate(SLIDERS):
             lbl, s = self.sliders[key]
@@ -257,6 +346,9 @@ class PhotoEditor(ui.View):
         self.filter_strip.hidden = idx != 0
         self.adjust_view.hidden = idx != 1
         self.tool_strip.hidden = idx != 2
+        self.motion_strip.hidden = idx != 3
+        if idx != 3:
+            self.stop_motion()
 
     # ------------------------------------------------------- الحالة والعرض
 
@@ -280,6 +372,9 @@ class PhotoEditor(ui.View):
             s.value = self.to_slider(key)
 
     def refresh(self):
+        # أي تعديل على الصورة يُبطل إطارات الموشن السابقة
+        self.stop_motion()
+        self.motion_frames = self.motion_ui = None
         if self.preview is None:
             return
         shown = apply_adjustments(self.preview, self.adj)
@@ -309,6 +404,78 @@ class PhotoEditor(ui.View):
         finally:
             console.hide_activity()
             self.busy = False
+
+    # ----------------------------------------------------------- الموشن
+
+    def update(self):
+        """يُستدعى تلقائياً كل update_interval أثناء تشغيل الموشن."""
+        if not self.playing or not self.motion_ui:
+            return
+        self.motion_index = (self.motion_index + 1) % len(self.motion_ui)
+        self.image_view.image = self.motion_ui[self.motion_index]
+
+    def play_motion(self):
+        self.motion_index = 0
+        self.image_view.image = self.motion_ui[0]
+        self.playing = True
+        self.update_interval = 1.0 / MOTION_FPS
+
+    def stop_motion(self, show_still=False):
+        was_playing = self.playing
+        self.playing = False
+        self.update_interval = 0
+        if show_still and was_playing and self.preview is not None:
+            self.image_view.image = pil_to_ui(
+                apply_adjustments(self.preview, self.adj))
+
+    def motion_tapped(self, sender):
+        if self.full is None:
+            console.hud_alert('اختر صورة أولاً', 'error', 1)
+            return
+        if sender.func == 'stop':
+            self.stop_motion(show_still=True)
+        elif sender.func in ('save', 'share'):
+            self.export_motion(sender.func)
+        else:
+            self.build_motion(sender.func)
+
+    @ui.in_background
+    def build_motion(self, func):
+        if self.busy:
+            return
+        self.busy = True
+        self.stop_motion()
+        console.show_activity('جاري تجهيز الموشن…')
+        try:
+            frames = render_motion(self.final_image(), func)
+            self.motion_ui = [pil_to_ui(f) for f in frames]
+            self.motion_frames = frames
+        finally:
+            console.hide_activity()
+            self.busy = False
+        ui.delay(self.play_motion, 0)
+
+    @ui.in_background
+    def export_motion(self, mode):
+        if not self.motion_frames:
+            console.hud_alert('اختر حركة أولاً', 'error', 1.2)
+            return
+        console.show_activity('جاري إنشاء GIF…')
+        try:
+            path = os.path.join(tempfile.gettempdir(), 'motion.gif')
+            save_gif(self.motion_frames, path)
+            if mode == 'save':
+                ok = photos.create_image_asset(path) is not None
+        finally:
+            console.hide_activity()
+        if mode == 'save':
+            console.hud_alert('تم حفظ GIF في الألبوم ✓' if ok else 'فشل الحفظ',
+                              'success' if ok else 'error', 1.2)
+        else:
+            console.open_in(path)
+
+    def will_close(self):
+        self.stop_motion()
 
     # ------------------------------------------------------------ الإجراءات
 
