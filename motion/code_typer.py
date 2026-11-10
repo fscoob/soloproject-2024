@@ -54,7 +54,8 @@ KEYWORDS = set('''if else while for return const let var new true false null
 undefined function await async break continue try catch throw class import
 from export def in of not and or self this require
 CREATE TABLE PRIMARY KEY NOT NULL TEXT INTEGER DEFAULT INSERT INTO VALUES
-SELECT FROM WHERE ORDER BY DESC LIMIT INDEX EXISTS IF AUTOINCREMENT'''.split())
+SELECT FROM WHERE ORDER BY DESC LIMIT INDEX EXISTS IF AUTOINCREMENT DATABASE USE
+VARCHAR DECIMAL INT FOREIGN REFERENCES JOIN LEFT INNER ON AS GROUP HAVING AND OR'''.split())
 FILE_COLORS = {'.html': (228, 112, 74), '.css': (86, 156, 214), '.js': (241, 212, 76),
                '.sql': (120, 200, 150), '.py': (90, 150, 220), '': (150, 160, 175)}
 
@@ -146,6 +147,11 @@ class Line:
     __slots__ = ('code', 'at', 'times', 'file', 'idx', 'silent')
 
 
+class Show:
+    """عرض نتيجة: pane=bottom (لوحة نتائج تحت الكود) أو full (يملأ النافذة)."""
+    __slots__ = ('image', 'at', 'hold', 'pane', 'file', 'label', 'img')
+
+
 class Script:
     """يقرأ ملف JSON. كل سطر: code + (اختياري) file, at, type, instant."""
 
@@ -164,7 +170,18 @@ class Script:
         file = data.get('file', 'main.js')
         t = float(data.get('start', 0.4))
         self.lines, self.files, counts = [], [], {}
+        self.shows = []
         for ln in data['lines']:
+            if 'show' in ln:
+                S = Show()
+                S.image = os.path.join(base_dir, ln['show'])
+                S.pane = ln.get('pane', 'bottom')
+                S.at = float(ln['at']) if 'at' in ln else t + float(ln.get('delay', 0.35))
+                S.hold = float(ln.get('hold', 2.0 if S.pane == 'bottom' else 3.5))
+                S.file, S.label = file, ln.get('label', 'Results')
+                self.shows.append(S)
+                t = S.at + S.hold
+                continue
             f = ln.get('file', file)
             if f != file and self.lines:
                 t += pause
@@ -299,6 +316,11 @@ class Editor:
         self.chrome = chrome
         self.rows = (self.h - self.top - 30) // self.lh
         self._emoji = {}
+        for S in script.shows:
+            im = Image.open(S.image).convert('RGB')
+            if im.width != self.w:
+                im = im.resize((self.w, int(im.height * self.w / im.width)), Image.LANCZOS)
+            S.img = im
         self.page = None
         if script.result:
             pg = Image.open(script.result['image']).convert('RGB')
@@ -321,6 +343,12 @@ class Editor:
                 r = int(9 * k)
                 d.ellipse((cx - r, self.tab_h / 2 - r, cx + r, self.tab_h / 2 + r), fill=c)
             x += int(100 * k)
+        if url is None and getattr(self, '_run', False):
+            lbl = '▶ Run'
+            tw = self.small.getlength(lbl) + 30 * k
+            d.rounded_rectangle((self.w - tw - 20 * k, 12 * k, self.w - 20 * k, self.tab_h - 12 * k),
+                                radius=int(16 * k), fill=(40, 160, 90))
+            d.text((self.w - tw - 5 * k, 17 * k), lbl, font=self.small, fill=(255, 255, 255))
         if url:
             d.rounded_rectangle((x, int(12 * k), self.w - int(28 * k), self.tab_h - int(12 * k)),
                                 radius=int(20 * k), fill=th['tab'])
@@ -350,12 +378,35 @@ class Editor:
                 cx, r = int(28 * k) + i * int(30 * k), int(9 * k)
                 d.ellipse((cx - r, self.tab_h / 2 - r, cx + r, self.tab_h / 2 + r), fill=c)
 
-    def scroll(self, t, file):
-        off = 0.0
+    def scroll(self, t, file, rows):
+        """إزاحة ناعمة تُبقي السطر الحالي ظاهراً فوق لوحة النتائج."""
+        cur = None
         for L in self.s.lines:
-            if L.file == file and L.idx >= self.rows - 2:
-                off += ease((t - L.at) / 0.3)
-        return off
+            if L.file == file and L.at <= t:
+                cur = L
+        if cur is None:
+            return 0.0
+        pos = cur.idx - 1 + ease((t - cur.at) / 0.25)
+        return max(0.0, pos + 2.2 - rows)
+
+    def bottom_show(self, t, file):
+        """آخر نتيجة سفلية في نفس الملف + نسبة ظهور اللوحة."""
+        act, first = None, None
+        for S in self.s.shows:
+            if S.pane == 'bottom' and S.file == file and S.at <= t:
+                act = S
+                if first is None:
+                    first = S
+        if act is None:
+            return None, 0.0
+        return act, ease((t - first.at) / 0.35)
+
+    def full_show(self, t):
+        for S in self.s.shows:
+            if S.pane == 'full' and S.at <= t < S.at + S.hold:
+                a = min(ease((t - S.at) / 0.4), ease((S.at + S.hold - t) / 0.4))
+                return S, a
+        return None, 0.0
 
     def draw_text(self, im, d, x, y, text, col):
         for run in RUNS.findall(text):
@@ -377,7 +428,12 @@ class Editor:
         d = ImageDraw.Draw(im)
         file, shown, cur, typing = self.s.state(t)
         term = file == 'terminal'
-        off = self.scroll(t, file)
+        show, pa = self.bottom_show(t, file)
+        panel_h = 0
+        if show is not None:
+            panel_h = int(min(show.img.height, self.h * 0.55) * pa)
+        rows = (self.h - panel_h - self.top - 20) / self.lh
+        off = self.scroll(t, file, rows)
         x0 = self.pad if term else self.x0
         for i, (text, full) in enumerate(shown):
             y = self.top + (i - off) * self.lh
@@ -402,7 +458,14 @@ class Editor:
             if i == cur and (typing or int(t * 2.2) % 2 == 0):
                 d.rectangle((x + 3, y + 2, x + 3 + 12 * self.k, y + self.lh - 14 * self.k),
                             fill=th['cursor'])
+        if panel_h:
+            ph = int(min(show.img.height, self.h * 0.55))
+            y0 = self.h - panel_h
+            im.paste(show.img.crop((0, 0, self.w, ph)), (0, y0))
+            d.line((0, y0, self.w, y0), fill=th['cursor'], width=max(2, int(3 * self.k)))
+        self._run = any(S.file == file and S.at - 0.35 <= t < S.at + 0.15 for S in self.s.shows)
         self.tabbar(d, self.s.open_files(t), file)
+        self._run = False
         return im
 
     def browser_view(self, t):
@@ -416,8 +479,18 @@ class Editor:
         self.tabbar(ImageDraw.Draw(im), [], None, url=r['url'])
         return im
 
+    def full_view(self, S):
+        im = Image.new('RGB', (self.w, self.h), self.th['bg'])
+        im.paste(S.img.crop((0, 0, self.w, self.h - self.tab_h)), (0, self.tab_h))
+        self.tabbar(ImageDraw.Draw(im), [S.label], S.label)
+        return im
+
     def render(self, t):
         r = self.s.result
+        S, fa = self.full_show(t)
+        if S is not None:
+            base = self.code_view(t)
+            return Image.blend(base, self.full_view(S), fa) if fa < 1 else self.full_view(S)
         if not r or t < r['at']:
             return self.code_view(t)
         a = ease((t - r['at']) / 0.6)
@@ -707,7 +780,8 @@ def main():
     if a.music:
         fc = (f'[1:a]volume={cv}[c];[2:a]volume={a.music_volume},'
               f'afade=t=out:st={script.duration - 1.2}:d=1.2[m];'
-              '[c][m]amix=inputs=2:duration=longest:normalize=0[a]')
+              '[c][m]amix=inputs=2:duration=longest:normalize=0,'
+              'loudnorm=I=-14:TP=-1.5:LRA=11[a]')
     else:
         fc = f'[1:a]volume={cv}[a]'
     cmd += ['-filter_complex', fc, '-map', '0:v', '-map', '[a]', '-t', str(script.duration),

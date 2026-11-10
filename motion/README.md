@@ -56,3 +56,15 @@ python3 code_typer.py fahad.json -o fahad_reel.mp4
 python3 lofi.py -o music.wav --seconds 50            # غيّر --seed للحن مختلف و--bpm للسرعة
 python3 code_typer.py fahad.json -o reel.mp4 --music music.wav --music-volume 0.7 --clicks-volume 0.55
 ```
+
+## ريل SQL: قاعدة بيانات شركة (أقسام ← إدارات ← موظفين)
+`sql_reel.py` ينفّذ كل خطوة SQL **فعلياً** على قاعدة SQLite، ويرسم نتيجتها: رسالة، أو بنية جدول، أو جدول نتائج، أو مخطط علاقات ER. وبعدها يكتب `sql.json`.
+```bash
+python3 sql_reel.py
+python3 lofi.py --style energetic -o assets/sql/music.wav --seconds 70
+python3 code_typer.py sql.json -o sql_reel.mp4 --music assets/sql/music.wav --music-volume 0.75 --clicks-volume 0.5
+```
+- عدّل الخطوات والبيانات في `BLOCKS` داخل `sql_reel.py`. كل كتلة فيها كود ونتيجة:
+  `('msg', [...])` أو `('schema', 'table')` أو `('query', 'SELECT ...')` أو `('er', None)`.
+- في `code_typer` تنعرض النتيجة بسطر `{"show": "img.png", "pane": "bottom"|"full", "hold": 2}`.
+- `lofi.py --style energetic`: موسيقى تعليمية حماسية بسرعة 118 BPM، فيها مقدمة ثم بناء ثم ذروة.

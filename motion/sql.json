@@ -1,0 +1,284 @@
+{
+ "mode": "plain",
+ "title": "قاعدة بيانات شركة بـ SQL 🔥",
+ "handle": "F A H A D   M O H A M M E D",
+ "fps": 30,
+ "char_time": 0.024,
+ "gap": 0.06,
+ "file_pause": 0.45,
+ "theme": {
+  "bg": "#0F1A17",
+  "tabbar": "#0A1210",
+  "tab": "#18262A",
+  "line_hl": "#1A2C26",
+  "cursor": "#C8A45D",
+  "handle": "#C8A45D",
+  "title": "#F3EEE4",
+  "glow": "#123A31",
+  "glow2": "#3A3020"
+ },
+ "lines": [
+  {
+   "code": "-- 1) إنشاء قاعدة بيانات الشركة",
+   "file": "01_database.sql"
+  },
+  {
+   "code": "CREATE DATABASE company;"
+  },
+  {
+   "code": "USE company;"
+  },
+  {
+   "show": "assets/sql/step01.png",
+   "pane": "bottom",
+   "label": "Output",
+   "hold": 1.8
+  },
+  {
+   "code": "-- 2) جدول الأقسام",
+   "file": "02_tables.sql"
+  },
+  {
+   "code": "CREATE TABLE departments ("
+  },
+  {
+   "code": "  id   INT PRIMARY KEY,"
+  },
+  {
+   "code": "  name VARCHAR(50) NOT NULL"
+  },
+  {
+   "code": ");"
+  },
+  {
+   "show": "assets/sql/step02.png",
+   "pane": "bottom",
+   "label": "Results",
+   "hold": 1.8
+  },
+  {
+   "code": ""
+  },
+  {
+   "code": "-- 3) الإدارات داخل كل قسم"
+  },
+  {
+   "code": "CREATE TABLE divisions ("
+  },
+  {
+   "code": "  id   INT PRIMARY KEY,"
+  },
+  {
+   "code": "  name VARCHAR(50) NOT NULL,"
+  },
+  {
+   "code": "  department_id INT,"
+  },
+  {
+   "code": "  FOREIGN KEY (department_id)"
+  },
+  {
+   "code": "    REFERENCES departments(id)"
+  },
+  {
+   "code": ");"
+  },
+  {
+   "show": "assets/sql/step03.png",
+   "pane": "bottom",
+   "label": "Results",
+   "hold": 1.8
+  },
+  {
+   "code": ""
+  },
+  {
+   "code": "-- 4) الموظفين وبياناتهم"
+  },
+  {
+   "code": "CREATE TABLE employees ("
+  },
+  {
+   "code": "  id     INT PRIMARY KEY,"
+  },
+  {
+   "code": "  name   VARCHAR(50) NOT NULL,"
+  },
+  {
+   "code": "  job    VARCHAR(50),"
+  },
+  {
+   "code": "  salary DECIMAL(10,2),"
+  },
+  {
+   "code": "  division_id INT,"
+  },
+  {
+   "code": "  FOREIGN KEY (division_id)"
+  },
+  {
+   "code": "    REFERENCES divisions(id)"
+  },
+  {
+   "code": ");"
+  },
+  {
+   "show": "assets/sql/step04.png",
+   "pane": "bottom",
+   "label": "Results",
+   "hold": 1.8
+  },
+  {
+   "show": "assets/sql/step05.png",
+   "pane": "full",
+   "label": "ER Diagram",
+   "hold": 4.0
+  },
+  {
+   "code": "-- 5) إدخال البيانات",
+   "file": "03_data.sql"
+  },
+  {
+   "code": "INSERT INTO departments VALUES"
+  },
+  {
+   "code": "  (1, 'تقنية المعلومات'),"
+  },
+  {
+   "code": "  (2, 'المالية'),"
+  },
+  {
+   "code": "  (3, 'الموارد البشرية');"
+  },
+  {
+   "show": "assets/sql/step06.png",
+   "pane": "bottom",
+   "label": "Results",
+   "hold": 2.6
+  },
+  {
+   "code": ""
+  },
+  {
+   "code": "INSERT INTO divisions VALUES"
+  },
+  {
+   "code": "  (1, 'البرمجة',  1),"
+  },
+  {
+   "code": "  (2, 'الشبكات',  1),"
+  },
+  {
+   "code": "  (3, 'الحسابات', 2),"
+  },
+  {
+   "code": "  (4, 'التوظيف',  3);"
+  },
+  {
+   "show": "assets/sql/step07.png",
+   "pane": "bottom",
+   "label": "Results",
+   "hold": 2.6
+  },
+  {
+   "code": ""
+  },
+  {
+   "code": "INSERT INTO employees VALUES"
+  },
+  {
+   "code": "  (1, 'فهد',  'مطوّر',  12000, 1),"
+  },
+  {
+   "code": "  (2, 'سارة', 'مهندسة شبكات', 11000, 2),"
+  },
+  {
+   "code": "  (3, 'خالد', 'محاسب', 9500, 3),"
+  },
+  {
+   "code": "  (4, 'نورة', 'أخصائية توظيف', 9000, 4),"
+  },
+  {
+   "code": "  (5, 'ريم',  'مطوّرة', 12500, 1);"
+  },
+  {
+   "show": "assets/sql/step08.png",
+   "pane": "bottom",
+   "label": "Results",
+   "hold": 2.6
+  },
+  {
+   "code": "-- 6) الربط: مين يشتغل وين؟",
+   "file": "04_join.sql"
+  },
+  {
+   "code": "SELECT e.name,"
+  },
+  {
+   "code": "       v.name AS division,"
+  },
+  {
+   "code": "       d.name AS department"
+  },
+  {
+   "code": "FROM employees e"
+  },
+  {
+   "code": "JOIN divisions v"
+  },
+  {
+   "code": "  ON v.id = e.division_id"
+  },
+  {
+   "code": "JOIN departments d"
+  },
+  {
+   "code": "  ON d.id = v.department_id;"
+  },
+  {
+   "show": "assets/sql/step09.png",
+   "pane": "bottom",
+   "label": "Results",
+   "hold": 2.6
+  },
+  {
+   "code": ""
+  },
+  {
+   "code": "-- 7) عدد الموظفين بكل قسم"
+  },
+  {
+   "code": "SELECT d.name,"
+  },
+  {
+   "code": "       COUNT(e.id)   AS staff,"
+  },
+  {
+   "code": "       AVG(e.salary) AS avg_salary"
+  },
+  {
+   "code": "FROM departments d"
+  },
+  {
+   "code": "JOIN divisions v"
+  },
+  {
+   "code": "  ON v.department_id = d.id"
+  },
+  {
+   "code": "LEFT JOIN employees e"
+  },
+  {
+   "code": "  ON e.division_id = v.id"
+  },
+  {
+   "code": "GROUP BY d.id, d.name;"
+  },
+  {
+   "show": "assets/sql/step10.png",
+   "pane": "bottom",
+   "label": "Results",
+   "hold": 3.5
+  }
+ ]
+}
