@@ -68,3 +68,12 @@ python3 code_typer.py sql.json -o sql_reel.mp4 --music assets/sql/music.wav --mu
   `('msg', [...])` أو `('schema', 'table')` أو `('query', 'SELECT ...')` أو `('er', None)`.
 - في `code_typer` تنعرض النتيجة بسطر `{"show": "img.png", "pane": "bottom"|"full", "hold": 2}`.
 - `lofi.py --style energetic`: موسيقى تعليمية حماسية بسرعة 118 BPM، فيها مقدمة ثم بناء ثم ذروة.
+
+## تأثير Swarm Rebuild
+الشاشة تتفكك لسرب جزيئات ذهبية يطير ويعيد بناء المشهد التالي. أضف `"transition": "swarm"` لأي عرض `pane: "full"`:
+```json
+{"show": "assets/sql/step05.png", "pane": "full", "transition": "swarm", "hold": 5.2}
+{"show": "assets/sql/outro.png", "pane": "full", "transition": "swarm", "out": false, "hold": 4.6}
+```
+- `"out": false` يعني المشهد يبقى للنهاية بدون ما يرجع للكود، ويُستخدم للختام.
+- في ريل SQL: الكود يتحول لمخطط العلاقات ثم يرجع، وفي النهاية تتحول الشاشة لختمك واسمك.

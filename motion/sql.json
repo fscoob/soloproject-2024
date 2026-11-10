@@ -3,7 +3,7 @@
  "title": "قاعدة بيانات شركة بـ SQL 🔥",
  "handle": "F A H A D   M O H A M M E D",
  "fps": 30,
- "char_time": 0.024,
+ "char_time": 0.022,
  "gap": 0.06,
  "file_pause": 0.45,
  "theme": {
@@ -132,7 +132,8 @@
    "show": "assets/sql/step05.png",
    "pane": "full",
    "label": "ER Diagram",
-   "hold": 4.0
+   "hold": 5.2,
+   "transition": "swarm"
   },
   {
    "code": "-- 5) إدخال البيانات",
@@ -278,7 +279,16 @@
    "show": "assets/sql/step10.png",
    "pane": "bottom",
    "label": "Results",
-   "hold": 3.5
+   "hold": 2.8
+  },
+  {
+   "show": "assets/sql/outro.png",
+   "pane": "full",
+   "label": "FAHAD MOHAMMED",
+   "transition": "swarm",
+   "out": false,
+   "hold": 4.6,
+   "delay": 0.1
   }
  ]
 }

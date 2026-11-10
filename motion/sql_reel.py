@@ -273,6 +273,22 @@ def er_image(db):
     return im
 
 
+def outro_image():
+    """الختام: الختم + الاسم (يُبنى بتأثير Swarm Rebuild)."""
+    im = Image.new('RGB', (WIDTH, FULL_H), C['bg'])
+    d = ImageDraw.Draw(im)
+    seal = Image.open(os.path.join(HERE, '..', 'site', 'assets', 'seal-gold.png')).convert('RGBA')
+    sh = 560
+    seal = seal.resize((int(seal.width * sh / seal.height), sh), Image.LANCZOS)
+    y = 190
+    im.paste(seal, ((WIDTH - seal.width) // 2, y), seal)
+    name = 'F A H A D   M O H A M M E D'
+    d.text(((WIDTH - F_TITLE.getlength(name)) / 2, y + sh + 70), name, font=F_TITLE, fill=C['gold'])
+    sub = 'SQL · Database Design'
+    d.text(((WIDTH - F_MONO.getlength(sub)) / 2, y + sh + 130), sub, font=F_MONO, fill=C['text'])
+    return im
+
+
 # ------------------------------------------------------------ التشغيل
 
 def main():
@@ -320,15 +336,21 @@ def main():
                 ln['file'] = file
             lines.append(ln)
         show = {'show': os.path.relpath(path, HERE), 'pane': pane, 'label': label,
-                'hold': 4.0 if pane == 'full' else (2.6 if kind == 'query' else 1.8)}
+                'hold': 5.2 if pane == 'full' else (2.6 if kind == 'query' else 1.8)}
+        if kind == 'er':
+            show['transition'] = 'swarm'
         lines.append(show)
         print(f'step {n:02d} {kind:6s} ✓ {os.path.basename(path)}')
-    lines[-1]['hold'] = 3.5
+    lines[-1]['hold'] = 2.8
+    out = os.path.join(OUT, 'outro.png')
+    outro_image().save(out, optimize=True)
+    lines.append({'show': os.path.relpath(out, HERE), 'pane': 'full', 'label': 'FAHAD MOHAMMED',
+                  'transition': 'swarm', 'out': False, 'hold': 4.6, 'delay': 0.1})
     data = {
         'mode': 'plain',
         'title': 'قاعدة بيانات شركة بـ SQL 🔥',
         'handle': 'F A H A D   M O H A M M E D',
-        'fps': 30, 'char_time': 0.024, 'gap': 0.06, 'file_pause': 0.45,
+        'fps': 30, 'char_time': 0.022, 'gap': 0.06, 'file_pause': 0.45,
         'theme': {'bg': '#0F1A17', 'tabbar': '#0A1210', 'tab': '#18262A', 'line_hl': '#1A2C26',
                   'cursor': '#C8A45D', 'handle': '#C8A45D', 'title': '#F3EEE4',
                   'glow': '#123A31', 'glow2': '#3A3020'},

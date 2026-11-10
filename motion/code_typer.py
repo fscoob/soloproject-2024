@@ -149,7 +149,70 @@ class Line:
 
 class Show:
     """عرض نتيجة: pane=bottom (لوحة نتائج تحت الكود) أو full (يملأ النافذة)."""
-    __slots__ = ('image', 'at', 'hold', 'pane', 'file', 'label', 'img')
+    __slots__ = ('image', 'at', 'hold', 'pane', 'file', 'label', 'img',
+                 'transition', 'out', 'sw_in', 'sw_out', 'full')
+
+
+class Swarm:
+    """تأثير Swarm Rebuild: الصورة A تتفكك لسرب جزيئات يطير ثم يعيد بناء الصورة B."""
+
+    def __init__(self, A, B, bg, accent, top=0, n=24000, seed=5):
+        self.A = np.asarray(A, np.float32)
+        self.B = np.asarray(B, np.float32)
+        self.top = top
+        self.bg = np.array(bg, np.float32)
+        self.accent = np.array(accent, np.float32)
+        h, w = self.A.shape[:2]
+        self.h, self.w = h, w
+        rnd = np.random.default_rng(seed)
+
+        def pick(img):
+            m = np.abs(img - self.bg).sum(-1) > 70
+            m[:top] = False
+            ys, xs = np.nonzero(m)
+            if len(xs) == 0:
+                ys, xs = np.array([h // 2]), np.array([w // 2])
+            i = rnd.integers(0, len(xs), n)
+            order = np.lexsort((xs[i], ys[i] // 24))     # ترتيب سطري لحركة منظّمة
+            i = i[order]
+            return np.stack([xs[i], ys[i]], 1).astype(np.float32), img[ys[i], xs[i]]
+
+        self.p0, self.c0 = pick(self.A)
+        self.p1, self.c1 = pick(self.B)
+        self.delay = (self.p0[:, 1] / h) * 0.22 + rnd.random(n) * 0.08
+        self.R = rnd.uniform(30, 220, n).astype(np.float32)
+        self.th = rnd.uniform(0, 2 * np.pi, n).astype(np.float32)
+        self.om = (rnd.uniform(2.5, 6, n) * rnd.choice([-1, 1], n)).astype(np.float32)
+        self.size = rnd.choice([2, 2, 3], n)
+
+    def frame(self, u):
+        u = min(1.0, max(0.0, u))
+        fa = ease(u / 0.25)                       # A يختفي
+        fb = ease((u - 0.72) / 0.28)              # B يظهر
+        out = self.A * (1 - fa) + self.bg * fa
+        out = out * (1 - fb) + self.B * fb
+        v = np.clip((u - self.delay) / 0.68, 0, 1)
+        e = 0.5 - 0.5 * np.cos(np.pi * v)
+        fl = np.sin(np.pi * v)
+        ang = self.th + self.om * v
+        x = self.p0[:, 0] * (1 - e) + self.p1[:, 0] * e + fl * self.R * np.cos(ang)
+        y = self.p0[:, 1] * (1 - e) + self.p1[:, 1] * e + fl * self.R * np.sin(ang) * 0.7
+        col = self.c0 * (1 - e)[:, None] + self.c1 * e[:, None]
+        col = col * (1 - 0.55 * fl)[:, None] + self.accent * (0.55 * fl)[:, None]
+        vis = (fb < 0.999) & (v > 0) & (v < 1) | ((v >= 1) & (fb < 0.9)) | ((v <= 0) & (fa > 0.05))
+        xi = x[vis].astype(int)
+        yi = y[vis].astype(int)
+        c = col[vis]
+        sz = self.size[vis]
+        for dx in (0, 1, 2):
+            for dy in (0, 1, 2):
+                k = (dx < sz) & (dy < sz)
+                xx, yy = xi[k] + dx, yi[k] + dy
+                ok = (xx >= 0) & (xx < self.w) & (yy >= self.top) & (yy < self.h)
+                out[yy[ok], xx[ok]] = c[k][ok]
+        img = out.clip(0, 255).astype(np.uint8)
+        img[:self.top] = (self.A if u < 0.5 else self.B)[:self.top].astype(np.uint8)
+        return Image.fromarray(img, 'RGB')
 
 
 class Script:
@@ -179,6 +242,9 @@ class Script:
                 S.at = float(ln['at']) if 'at' in ln else t + float(ln.get('delay', 0.35))
                 S.hold = float(ln.get('hold', 2.0 if S.pane == 'bottom' else 3.5))
                 S.file, S.label = file, ln.get('label', 'Results')
+                S.transition = ln.get('transition', 'fade')
+                S.out = ln.get('out', True)
+                S.sw_in = S.sw_out = S.full = None
                 self.shows.append(S)
                 t = S.at + S.hold
                 continue
@@ -214,6 +280,8 @@ class Script:
             self.result = {'image': img, 'at': at, 'hold': float(res.get('hold', 7)),
                            'url': res.get('url', 'localhost:3000')}
             self.duration = at + self.result['hold']
+        elif self.shows and not self.shows[-1].out:
+            self.duration = self.shows[-1].at + self.shows[-1].hold   # الختام يبقى حتى النهاية
         else:
             self.duration = float(data.get('duration', t + 2.5))
         if 'duration' in data:
@@ -404,7 +472,9 @@ class Editor:
     def full_show(self, t):
         for S in self.s.shows:
             if S.pane == 'full' and S.at <= t < S.at + S.hold:
-                a = min(ease((t - S.at) / 0.4), ease((S.at + S.hold - t) / 0.4))
+                a = ease((t - S.at) / 0.4)
+                if S.out:
+                    a = min(a, ease((S.at + S.hold - t) / 0.4))
                 return S, a
         return None, 0.0
 
@@ -485,9 +555,25 @@ class Editor:
         self.tabbar(ImageDraw.Draw(im), [S.label], S.label)
         return im
 
+    def swarm_view(self, S, t, tin=1.6, tout=1.3):
+        if S.full is None:
+            S.full = self.full_view(S)
+        args = (self.th['bg'], self.th['cursor'], self.tab_h)
+        if t < S.at + tin:
+            if S.sw_in is None:
+                S.sw_in = Swarm(self.code_view(S.at - 0.01), S.full, *args)
+            return S.sw_in.frame((t - S.at) / tin)
+        if S.out and t > S.at + S.hold - tout:
+            if S.sw_out is None:
+                S.sw_out = Swarm(S.full, self.code_view(S.at + S.hold + 0.01), *args, seed=9)
+            return S.sw_out.frame((t - (S.at + S.hold - tout)) / tout)
+        return S.full
+
     def render(self, t):
         r = self.s.result
         S, fa = self.full_show(t)
+        if S is not None and S.transition == 'swarm':
+            return self.swarm_view(S, t)
         if S is not None:
             base = self.code_view(t)
             return Image.blend(base, self.full_view(S), fa) if fa < 1 else self.full_view(S)
