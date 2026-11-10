@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FAHAD MOHAMMED · فهد محمد</title>
+  <meta name="description" content="الموقع الشخصي لفهد محمد">
+  <meta name="theme-color" content="#123A31">
+  <link rel="icon" href="assets/seal-gold.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="nav">
+    <a class="lockup" href="#top" aria-label="الرئيسية">
+      <img src="assets/seal-green.png" alt="">
+      <span>FAHAD<br>MOHAMMED</span>
+    </a>
+    <nav>
+      <a href="#about">نبذة</a>
+      <a href="#work">أعمالي</a>
+      <a href="#contact" class="btn-sm">تواصل</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="arch">
+        <img src="assets/seal-gold.png" alt="ختم فهد محمد">
+      </div>
+      <p class="wordmark">FAHAD MOHAMMED</p>
+      <h1>فهد محمد</h1>
+      <p class="tagline">أصمّم وأبني تجارب رقمية بهوية واضحة</p>
+      <a href="#contact" class="btn">ابدأ مشروعك</a>
+    </section>
+
+    <section id="about" class="section reveal">
+      <span class="num">01</span>
+      <h2>نبذة</h2>
+      <p class="lead">
+        أهلاً، أنا فهد. أحب أن يكون لكل مشروع ختم يميّزه —
+        من الهوية البصرية إلى الموقع والمحتوى.
+      </p>
+    </section>
+
+    <section id="work" class="section reveal">
+      <span class="num">02</span>
+      <h2>أعمالي</h2>
+      <div class="cards">
+        <article class="card">
+          <h3>هوية بصرية</h3>
+          <p>شعارات وأدلة استخدام بألوان وخطوط ثابتة.</p>
+        </article>
+        <article class="card">
+          <h3>مواقع</h3>
+          <p>صفحات سريعة ومتجاوبة مربوطة بقاعدة بيانات.</p>
+        </article>
+        <article class="card">
+          <h3>محتوى</h3>
+          <p>ريلز وموشن قرافيكس بنفس روح الهوية.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="contact" class="section contact reveal">
+      <span class="num">03</span>
+      <h2>تواصل</h2>
+      <form id="contact-form" novalidate>
+        <label>الاسم
+          <input name="name" required maxlength="80" autocomplete="name">
+        </label>
+        <label>البريد
+          <input name="email" type="email" required maxlength="120" autocomplete="email" dir="ltr">
+        </label>
+        <label>رسالتك
+          <textarea name="message" rows="4" required maxlength="2000"></textarea>
+        </label>
+        <button class="btn" type="submit">أرسل</button>
+        <p class="status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <img src="assets/seal-cream.png" alt="">
+    <p>© <span id="year"></span> FAHAD MOHAMMED</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -36,3 +36,16 @@ python3 code_typer.py example.json -o reel.mp4 --bg desk.jpg --screen 120,610,98
 - `duration` (اختياري): طول الفيديو، الافتراضي = آخر سطر + 2.5 ث
 
 خيارات أخرى: `--music-volume`، `--clicks-volume`، `--no-clicks`.
+
+## وضع الشاشة السوداء، وعدة ملفات، وعرض النتيجة
+راجع `fahad.json` كمثال كامل: موقع بـ HTML ثم CSS ثم JS ثم SQL ثم الخادم ثم terminal، وفي النهاية يتمرّر الموقع الناتج.
+```bash
+python3 code_typer.py fahad.json -o fahad_reel.mp4
+```
+- `"mode": "plain"`: نافذة محرر على خلفية سوداء. `"desk"` تعني شاشة على مكتب.
+- `"file"` في أي سطر يفتح تبويباً جديداً، و`"terminal"` يعرض طرفية.
+- ما تحتاج `at` و`type`. التوقيت يُحسب تلقائياً من `char_time` (ثوانٍ لكل حرف) و`gap`.
+- `"instant": true` يُظهر السطر مرة وحدة، مثل مخرجات الطرفية.
+- `"result": {"image": "...png", "hold": 7}` تعرض صورة الموقع في النهاية وتمرّرها.
+- `"theme"` يغيّر الألوان: `cursor` و`title` و`handle` و`glow` و`bg` …
+- الخطوط العربية في `fonts/` (IBM Plex Sans Arabic، رخصة OFL).

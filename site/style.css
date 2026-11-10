@@ -1,0 +1,118 @@
+/* ألوان الهوية — من دليل الاستخدام */
+:root {
+  --green: #123A31;   /* Seal Green */
+  --gold: #C8A45D;    /* Seal Gold */
+  --cream: #F3EEE4;   /* Paper Cream */
+  --ink: #1d2622;
+  --muted: #6b716c;
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'IBM Plex Sans Arabic', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--cream);
+  color: var(--ink);
+  line-height: 1.7;
+}
+img { display: block; max-width: 100%; }
+
+/* ---------- الشريط العلوي ---------- */
+.nav {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 6vw;
+  background: rgb(243 238 228 / .9);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid #e2dbcd;
+}
+.lockup { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.lockup img { height: 44px; }
+.lockup span {
+  font-family: var(--serif); font-size: 13px; line-height: 1.25;
+  letter-spacing: .32em; color: var(--green);
+  border-inline-start: 1px solid #cfc7b6; padding-inline-start: 12px;
+  direction: ltr; text-align: left;
+}
+.nav nav { display: flex; align-items: center; gap: 22px; }
+.nav nav a { color: var(--green); text-decoration: none; font-weight: 500; }
+.btn-sm { border: 1px solid var(--green); padding: 4px 14px; border-radius: 999px; }
+
+/* ---------- الواجهة ---------- */
+.hero {
+  background: var(--green);
+  color: var(--cream);
+  text-align: center;
+  padding: 72px 6vw 88px;
+}
+.arch {
+  width: min(230px, 56vw);
+  margin: 0 auto 30px;
+  animation: rise 1.2s cubic-bezier(.2, .7, .2, 1) both;
+}
+.wordmark {
+  font-family: var(--serif);
+  color: var(--gold);
+  letter-spacing: .5em;
+  font-size: clamp(15px, 2.6vw, 22px);
+  direction: ltr;
+  margin-inline-end: -.5em;   /* يعادل التباعد في آخر حرف */
+}
+.hero h1 { font-size: clamp(30px, 6vw, 46px); font-weight: 600; margin-top: 18px; }
+.tagline { color: #cfd8d2; margin: 6px 0 30px; }
+
+.btn {
+  display: inline-block;
+  background: var(--gold); color: var(--green);
+  font: 600 16px var(--sans);
+  padding: 12px 34px; border: 0; border-radius: 999px;
+  text-decoration: none; cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgb(0 0 0 / .18); }
+
+/* ---------- الأقسام ---------- */
+.section { max-width: 920px; margin: 0 auto; padding: 72px 6vw; border-bottom: 1px solid #e2dbcd; }
+.num { font-family: var(--serif); color: var(--muted); font-size: 14px; }
+.section h2 { font-family: var(--sans); color: var(--green); font-size: 30px; margin-bottom: 18px; }
+.lead { font-size: 19px; max-width: 40em; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+.card {
+  background: #fff; border: 1px solid #e2dbcd; border-radius: 14px;
+  padding: 26px 22px; border-top: 3px solid var(--gold);
+}
+.card h3 { color: var(--green); margin-bottom: 6px; }
+.card p { color: var(--muted); }
+
+/* ---------- نموذج التواصل ---------- */
+form { display: grid; gap: 16px; max-width: 520px; }
+label { display: grid; gap: 6px; font-weight: 500; color: var(--green); }
+input, textarea {
+  font: 16px var(--sans); color: var(--ink);
+  padding: 12px 14px; border: 1px solid #d6cebd; border-radius: 10px; background: #fff;
+}
+input:focus, textarea:focus { outline: 2px solid var(--gold); border-color: transparent; }
+.status { min-height: 1.7em; font-weight: 500; }
+.status.ok { color: var(--green); }
+.status.err { color: #a8432f; }
+
+/* ---------- التذييل ---------- */
+.footer { background: var(--green); color: var(--gold); text-align: center; padding: 44px 0; }
+.footer img { height: 64px; margin: 0 auto 14px; }
+.footer p { font-family: var(--serif); letter-spacing: .3em; font-size: 13px; direction: ltr; }
+
+/* ---------- الحركة ---------- */
+@keyframes rise { from { opacity: 0; transform: translateY(24px) scale(.96); } }
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s, transform .8s; }
+.reveal.in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .arch { animation: none; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+@media (max-width: 560px) {
+  .nav nav a:not(.btn-sm) { display: none; }
+}
