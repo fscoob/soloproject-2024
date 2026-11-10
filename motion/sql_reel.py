@@ -135,6 +135,30 @@ BLOCKS = [
 ]
 
 
+# شروحات كل خطوة: شريط الخطوة أسفل الفيديو + أسهم مساعدة على الكود
+# note: (رقم السطر داخل الكتلة, النص المستهدف, الشرح, نوع: arrow|spot, زوم, توقف)
+CAPTIONS = {
+    1: 'الخطوة 1: إنشاء قاعدة البيانات', 2: 'الخطوة 2: جدول الأقسام',
+    3: 'الخطوة 3: الإدارات داخل الأقسام', 4: 'الخطوة 4: جدول الموظفين',
+    5: 'العلاقات: قسم ← إدارات ← موظفين', 6: 'الخطوة 5: إدخال البيانات',
+    9: 'الخطوة 6: ربط الجداول بـ JOIN', 10: 'الخطوة 7: التجميع بـ GROUP BY',
+}
+NOTES = {
+    1: [(1, 'CREATE DATABASE', 'قاعدة جديدة اسمها company', 'arrow', None, 0.6)],
+    2: [(2, 'PRIMARY KEY', '🔑 مفتاح أساسي: رقم فريد', 'arrow', None, 0.6)],
+    3: [(7, 'REFERENCES departments(id)', '🔗 هنا الربط بالقسم', 'spot', 1.15, 1.4)],
+    4: [(9, 'REFERENCES divisions(id)', '🔗 كل موظف يتبع إدارة', 'spot', 1.15, 1.4)],
+    8: [(2, '1),', 'رقم الإدارة (FK)', 'arrow', None, 0.9)],
+    9: [(6, 'v.id = e.division_id', '🔑 = 🔗 نطابق المفتاحين', 'spot', 1.15, 1.3)],
+    10: [(3, 'COUNT(e.id)', 'نعدّ الموظفين', 'arrow', None, 0.8)],
+}
+# أسهم على مخطط العلاقات (إحداثيات داخل صورة ER)
+ER_NOTES = [
+    ((246, 558, 746, 602), '1 قسم ← عدة إدارات', -4.8, 1.7),
+    ((396, 962, 896, 1006), '1 إدارة ← عدة موظفين', -3.1, 1.75),
+]
+
+
 # ------------------------------------------------------------ الرسم
 
 def tw(s, mono=F_MONO, ar=F_AR):
@@ -297,6 +321,7 @@ def main():
     db.execute('PRAGMA foreign_keys = ON')
     lines = []
     file = None
+    counts = {}
     for n, b in enumerate(BLOCKS, 1):
         kind, arg = b['result']
         code = '\n'.join(b['code'])
@@ -328,22 +353,41 @@ def main():
         if b['file'] and b['file'] != file:
             file = b['file']
             first = True
+            counts.setdefault(file, 0)
         else:
             first = False
+        if n in CAPTIONS and kind != 'er':
+            lines.append({'caption': CAPTIONS[n]})
+        notes = {nt[0]: nt for nt in NOTES.get(n, [])}
         for i, c in enumerate(b['code']):
             ln = {'code': c}
             if first and i == 0:
                 ln['file'] = file
             lines.append(ln)
+            idx = counts[file]
+            counts[file] += 1
+            if i in notes:
+                _, match, text, nkind, zoom, wait = notes[i]
+                note = {'note': text, 'match': match, 'line': idx, 'kind': nkind,
+                        'hold': 2.6 + wait, 'wait': wait}
+                if zoom:
+                    note['zoom'] = zoom
+                lines.append(note)
         show = {'show': os.path.relpath(path, HERE), 'pane': pane, 'label': label,
-                'hold': 5.2 if pane == 'full' else (2.6 if kind == 'query' else 1.8)}
+                'hold': 6.5 if pane == 'full' else (2.6 if kind == 'query' else 1.8)}
         if kind == 'er':
             show['transition'] = 'swarm'
+            lines.append({'caption': CAPTIONS[n], 'at_delay': True})
         lines.append(show)
+        if kind == 'er':
+            for rect, text, delay, hold in ER_NOTES:
+                lines.append({'note': text, 'rect': list(rect), 'kind': 'spot',
+                              'delay': delay, 'hold': hold, 'zoom': 1.15})
         print(f'step {n:02d} {kind:6s} ✓ {os.path.basename(path)}')
     lines[-1]['hold'] = 2.8
     out = os.path.join(OUT, 'outro.png')
     outro_image().save(out, optimize=True)
+    lines.append({'caption': ''})
     lines.append({'show': os.path.relpath(out, HERE), 'pane': 'full', 'label': 'FAHAD MOHAMMED',
                   'transition': 'swarm', 'out': False, 'hold': 4.6, 'delay': 0.1})
     data = {

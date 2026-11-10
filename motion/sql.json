@@ -19,11 +19,22 @@
  },
  "lines": [
   {
+   "caption": "الخطوة 1: إنشاء قاعدة البيانات"
+  },
+  {
    "code": "-- 1) إنشاء قاعدة بيانات الشركة",
    "file": "01_database.sql"
   },
   {
    "code": "CREATE DATABASE company;"
+  },
+  {
+   "note": "قاعدة جديدة اسمها company",
+   "match": "CREATE DATABASE",
+   "line": 1,
+   "kind": "arrow",
+   "hold": 3.2,
+   "wait": 0.6
   },
   {
    "code": "USE company;"
@@ -33,6 +44,9 @@
    "pane": "bottom",
    "label": "Output",
    "hold": 1.8
+  },
+  {
+   "caption": "الخطوة 2: جدول الأقسام"
   },
   {
    "code": "-- 2) جدول الأقسام",
@@ -45,6 +59,14 @@
    "code": "  id   INT PRIMARY KEY,"
   },
   {
+   "note": "🔑 مفتاح أساسي: رقم فريد",
+   "match": "PRIMARY KEY",
+   "line": 2,
+   "kind": "arrow",
+   "hold": 3.2,
+   "wait": 0.6
+  },
+  {
    "code": "  name VARCHAR(50) NOT NULL"
   },
   {
@@ -55,6 +77,9 @@
    "pane": "bottom",
    "label": "Results",
    "hold": 1.8
+  },
+  {
+   "caption": "الخطوة 3: الإدارات داخل الأقسام"
   },
   {
    "code": ""
@@ -81,6 +106,15 @@
    "code": "    REFERENCES departments(id)"
   },
   {
+   "note": "🔗 هنا الربط بالقسم",
+   "match": "REFERENCES departments(id)",
+   "line": 12,
+   "kind": "spot",
+   "hold": 4.0,
+   "wait": 1.4,
+   "zoom": 1.15
+  },
+  {
    "code": ");"
   },
   {
@@ -88,6 +122,9 @@
    "pane": "bottom",
    "label": "Results",
    "hold": 1.8
+  },
+  {
+   "caption": "الخطوة 4: جدول الموظفين"
   },
   {
    "code": ""
@@ -120,6 +157,15 @@
    "code": "    REFERENCES divisions(id)"
   },
   {
+   "note": "🔗 كل موظف يتبع إدارة",
+   "match": "REFERENCES divisions(id)",
+   "line": 23,
+   "kind": "spot",
+   "hold": 4.0,
+   "wait": 1.4,
+   "zoom": 1.15
+  },
+  {
    "code": ");"
   },
   {
@@ -129,11 +175,44 @@
    "hold": 1.8
   },
   {
+   "caption": "العلاقات: قسم ← إدارات ← موظفين",
+   "at_delay": true
+  },
+  {
    "show": "assets/sql/step05.png",
    "pane": "full",
    "label": "ER Diagram",
-   "hold": 5.2,
+   "hold": 6.5,
    "transition": "swarm"
+  },
+  {
+   "note": "1 قسم ← عدة إدارات",
+   "rect": [
+    246,
+    558,
+    746,
+    602
+   ],
+   "kind": "spot",
+   "delay": -4.8,
+   "hold": 1.7,
+   "zoom": 1.15
+  },
+  {
+   "note": "1 إدارة ← عدة موظفين",
+   "rect": [
+    396,
+    962,
+    896,
+    1006
+   ],
+   "kind": "spot",
+   "delay": -3.1,
+   "hold": 1.75,
+   "zoom": 1.15
+  },
+  {
+   "caption": "الخطوة 5: إدخال البيانات"
   },
   {
    "code": "-- 5) إدخال البيانات",
@@ -191,6 +270,14 @@
    "code": "  (1, 'فهد',  'مطوّر',  12000, 1),"
   },
   {
+   "note": "رقم الإدارة (FK)",
+   "match": "1),",
+   "line": 13,
+   "kind": "arrow",
+   "hold": 3.5,
+   "wait": 0.9
+  },
+  {
    "code": "  (2, 'سارة', 'مهندسة شبكات', 11000, 2),"
   },
   {
@@ -207,6 +294,9 @@
    "pane": "bottom",
    "label": "Results",
    "hold": 2.6
+  },
+  {
+   "caption": "الخطوة 6: ربط الجداول بـ JOIN"
   },
   {
    "code": "-- 6) الربط: مين يشتغل وين؟",
@@ -231,6 +321,15 @@
    "code": "  ON v.id = e.division_id"
   },
   {
+   "note": "🔑 = 🔗 نطابق المفتاحين",
+   "match": "v.id = e.division_id",
+   "line": 6,
+   "kind": "spot",
+   "hold": 3.9000000000000004,
+   "wait": 1.3,
+   "zoom": 1.15
+  },
+  {
    "code": "JOIN departments d"
   },
   {
@@ -243,6 +342,9 @@
    "hold": 2.6
   },
   {
+   "caption": "الخطوة 7: التجميع بـ GROUP BY"
+  },
+  {
    "code": ""
   },
   {
@@ -253,6 +355,14 @@
   },
   {
    "code": "       COUNT(e.id)   AS staff,"
+  },
+  {
+   "note": "نعدّ الموظفين",
+   "match": "COUNT(e.id)",
+   "line": 12,
+   "kind": "arrow",
+   "hold": 3.4000000000000004,
+   "wait": 0.8
   },
   {
    "code": "       AVG(e.salary) AS avg_salary"
@@ -280,6 +390,9 @@
    "pane": "bottom",
    "label": "Results",
    "hold": 2.8
+  },
+  {
+   "caption": ""
   },
   {
    "show": "assets/sql/outro.png",

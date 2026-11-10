@@ -233,8 +233,24 @@ class Script:
         file = data.get('file', 'main.js')
         t = float(data.get('start', 0.4))
         self.lines, self.files, counts = [], [], {}
-        self.shows = []
+        self.shows, self.notes, self.captions = [], [], []
         for ln in data['lines']:
+            if 'caption' in ln:
+                at = float(ln['at']) if 'at' in ln else t
+                self.captions.append({'at': at, 'text': ln['caption'],
+                                      'hold': float(ln.get('hold', 0))})
+                continue
+            if 'note' in ln:
+                N = dict(ln)
+                N['at'] = float(ln['at']) if 'at' in ln else t + float(ln.get('delay', 0.1))
+                N['file'] = file
+                N.setdefault('hold', 2.8)
+                N.setdefault('kind', 'arrow')
+                N.setdefault('line', counts.get(file, 1) - 1)
+                N['seed'] = len(self.notes) + 1
+                self.notes.append(N)
+                t += float(ln.get('wait', 0))
+                continue
             if 'show' in ln:
                 S = Show()
                 S.image = os.path.join(base_dir, ln['show'])
@@ -272,6 +288,9 @@ class Script:
             counts[f] = L.idx + 1
             self.lines.append(L)
             t = max((times[-1] if times else at), at) + gap + float(ln.get('pause', 0))
+        for i, c in enumerate(self.captions):
+            nxt = self.captions[i + 1]['at'] if i + 1 < len(self.captions) else 1e9
+            c['end'] = min(nxt, c['at'] + c['hold']) if c['hold'] else nxt
         self.result = None
         res = data.get('result')
         if res:
@@ -505,8 +524,10 @@ class Editor:
         rows = (self.h - panel_h - self.top - 20) / self.lh
         off = self.scroll(t, file, rows)
         x0 = self.pad if term else self.x0
+        self.layout = {}
         for i, (text, full) in enumerate(shown):
             y = self.top + (i - off) * self.lh
+            self.layout[i] = (y, x0, full)
             if y < self.tab_h - self.lh or y > self.h:
                 continue
             if i == cur and not term:
@@ -533,6 +554,10 @@ class Editor:
             y0 = self.h - panel_h
             im.paste(show.img.crop((0, 0, self.w, ph)), (0, y0))
             d.line((0, y0, self.w, y0), fill=th['cursor'], width=max(2, int(3 * self.k)))
+            if t - show.at < 0.7:                      # شرارة عند ظهور النتيجة
+                fx_burst(d, (self.w - 70 * self.k, y0 + 26 * self.k), t - show.at,
+                         th['cursor'], self.k, seed=int(show.at * 10))
+        self.code_file = file
         self._run = any(S.file == file and S.at - 0.35 <= t < S.at + 0.15 for S in self.s.shows)
         self.tabbar(d, self.s.open_files(t), file)
         self._run = False
@@ -570,6 +595,137 @@ class Editor:
         return S.full
 
     def render(self, t):
+        im = self._render(t)
+        return self.draw_notes(im, t)
+
+    # ---------------------------------------------- الأسهم المساعدة والتأثيرات
+    def note_rect(self, N, full_mode):
+        k = self.k
+        if 'rect' in N:                                  # إحداثيات على صورة العرض الكامل
+            if not full_mode:
+                return None
+            x1, y1, x2, y2 = N['rect']
+            return (x1, y1 + self.tab_h, x2, y2 + self.tab_h)
+        if full_mode or getattr(self, 'code_file', None) != N['file']:
+            return None
+        lay = getattr(self, 'layout', {}).get(N['line'])
+        if lay is None:
+            return None
+        y, x0, full = lay
+        m = N.get('match') or full.strip()
+        i = full.find(m)
+        if i < 0:
+            return None
+        def width(s):
+            return sum(self.arabic.getlength(r, direction='rtl') if is_arabic(r[0])
+                       else self.font.getlength(r) for r in RUNS.findall(s)) if s else 0
+        x1 = x0 + width(full[:i])
+        x2 = x1 + width(m)
+        N['_end'] = x0 + width(full.rstrip()) + 10 * k
+        return (x1 - 10 * k, y - 8 * k, x2 + 10 * k, y + self.lh - 12 * k)
+
+    def bubble(self, text):
+        cache = self.__dict__.setdefault('_bubbles', {})
+        if text not in cache:
+            k = self.k
+            th = self.th
+            t_img = rich_text(text, int(34 * k), th.get('title', (243, 238, 228)))
+            px, py = int(22 * k), int(10 * k)
+            b = Image.new('RGBA', (t_img.width + px * 2, t_img.height + py * 2), (0, 0, 0, 0))
+            bd = ImageDraw.Draw(b)
+            bd.rounded_rectangle((0, 0, b.width - 1, b.height - 1), radius=int(18 * k),
+                                 fill=(18, 58, 49, 245), outline=th['cursor'], width=max(2, int(3 * k)))
+            b.alpha_composite(t_img, (px, py))
+            cache[text] = b
+        return cache[text]
+
+    def active_notes(self, t):
+        return [N for N in self.s.notes if N['at'] <= t < N['at'] + N['hold']]
+
+    def draw_notes(self, im, t):
+        notes = self.active_notes(t)
+        if not notes:
+            return im
+        full_mode = self.full_show(t)[0] is not None
+        k, gold = self.k, self.th['cursor']
+        base = im.convert('RGBA')
+        for N in notes:
+            rect = self.note_rect(N, full_mode)
+            if rect is None:
+                continue
+            a = t - N['at']
+            fo = ease((N['at'] + N['hold'] - t) / 0.35)
+            p = ease(a / 0.4)
+            x1, y1, x2, y2 = rect
+            cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
+            N['_c'] = (cx, cy)
+            # 1) سبوت لايت: تعتيم كل شي ما عدا الهدف
+            if N['kind'] == 'spot':
+                m = Image.new('L', im.size, int(165 * p * fo))
+                ImageDraw.Draw(m).rounded_rectangle(
+                    (x1 - 14 * k, y1 - 10 * k, x2 + 14 * k, y2 + 10 * k), radius=int(14 * k), fill=0)
+                m = m.filter(ImageFilter.GaussianBlur(8 * k))
+                dark = Image.new('RGBA', im.size, (0, 0, 0, 255))
+                dark.putalpha(m)
+                base.alpha_composite(dark)
+            # 2) مربع إبراز يتقلّص لمكانه
+            layer = Image.new('RGBA', im.size, (0, 0, 0, 0))
+            ld = ImageDraw.Draw(layer)
+            sc = 1 + 0.18 * (1 - p)
+            hw, hh = (x2 - x1) / 2 * sc, (y2 - y1) / 2 * sc
+            al = int(255 * p * fo)
+            ld.rounded_rectangle((cx - hw - 4 * k, cy - hh - 4 * k, cx + hw + 4 * k, cy + hh + 4 * k),
+                                 radius=int(12 * k), outline=gold + (int(al * 0.35),), width=int(9 * k))
+            ld.rounded_rectangle((cx - hw, cy - hh, cx + hw, cy + hh), radius=int(10 * k),
+                                 fill=gold + (int(al * 0.13),), outline=gold + (al,),
+                                 width=max(2, int(3 * k)))
+            # 3) فقاعة الشرح + سهم يُرسم من الفقاعة للهدف
+            if N.get('note'):
+                b = self.bubble(N['note'])
+                bw, bh = b.size
+                side = N.get('side')
+                end = max(x2, N.get('_end', x2)) if 'rect' not in N else x2
+                if side is None:
+                    side = 'right' if end + bw + 90 * k < self.w else ('below' if y2 + 2 * self.lh + bh < self.h * 0.62 else 'above')
+                if side == 'right' and end > x2 + 20 * k:      # بعد نهاية السطر، والسهم من فوق
+                    bx, by = end + 60 * k, y1 - bh - 0.35 * self.lh
+                    s0, s1 = (bx - 6 * k, by + bh / 2), ((x1 + x2) / 2 + (x2 - x1) * 0.3, y1 - 6 * k)
+                elif side == 'right':
+                    bx, by = x2 + 70 * k, cy - bh / 2
+                    s0, s1 = (bx - 6 * k, cy), (x2 + 8 * k, cy)
+                elif side == 'below':
+                    bx = min(max(cx - bw / 2 + 90 * k, 16 * k), self.w - bw - 16 * k)
+                    by = y2 + 1.25 * self.lh
+                    s0, s1 = (bx + bw / 2, by - 6 * k), (cx, y2 + 8 * k)
+                else:
+                    bx = min(max(cx - bw / 2 + 90 * k, 16 * k), self.w - bw - 16 * k)
+                    by = y1 - 1.25 * self.lh - bh
+                    s0, s1 = (bx + bw / 2, by + bh + 6 * k), (cx, y1 - 8 * k)
+                q = ease((a - 0.3) / 0.45)
+                if q > 0:
+                    fx_arrow(ld, s0, s1, q, gold + (int(255 * fo),), k)
+                if q >= 1 and a < 1.45:
+                    fx_burst(ld, s1, a - 0.75, gold, k, seed=N['seed'])
+                ps = fx_backout(min(1, max(0, (a - 0.1) / 0.4)))
+                if ps > 0.02:
+                    bb = b.resize((max(1, int(bw * ps)), max(1, int(bh * ps))), Image.LANCZOS)
+                    if fo < 1:
+                        bb.putalpha(bb.split()[3].point(lambda v: int(v * fo)))
+                    layer.alpha_composite(bb, (int(bx + (bw - bb.width) / 2), int(by + (bh - bb.height) / 2)))
+            base.alpha_composite(layer)
+        return base.convert('RGB')
+
+    def focus(self, t):
+        """زوم الكاميرا على هدف الملاحظة (إن طُلب) + نبضة عند ظهور كل نتيجة."""
+        best = None
+        for N in self.s.notes:
+            if N.get('zoom') and N['at'] <= t < N['at'] + N['hold'] and '_c' in N:
+                w_ = min(ease((t - N['at']) / 0.55), ease((N['at'] + N['hold'] - t) / 0.55))
+                best = (w_, float(N['zoom']), N['_c'])
+        punch = sum(0.022 * math.exp(-(t - S.at) * 7) for S in self.s.shows if 0 <= t - S.at < 0.9)
+        return best, punch
+
+    def _render(self, t):
         r = self.s.result
         S, fa = self.full_show(t)
         if S is not None and S.transition == 'swarm':
@@ -687,13 +843,101 @@ class Compositor:
         return out
 
 
-def camera(scene, t, dur, push=0.05):
-    """تقريب بطيء + اهتزاز يد خفيف."""
+def fx_backout(x):
+    """حركة «بوب» تتجاوز قليلاً ثم ترجع."""
+    c = 1.9
+    x -= 1
+    return 1 + (c + 1) * x ** 3 + c * x ** 2
+
+
+def fx_arrow(d, p0, p1, q, col, k):
+    """سهم منحني يُرسم تدريجياً (q من 0 إلى 1) مع رأس سهم."""
+    (x0, y0), (x1, y1) = p0, p1
+    mx, my = (x0 + x1) / 2, (y0 + y1) / 2
+    dx, dy = x1 - x0, y1 - y0
+    L = math.hypot(dx, dy) or 1
+    cx, cy = mx - dy / L * L * 0.22, my + dx / L * L * 0.22
+    n = 40
+    pts = []
+    for i in range(int(n * q) + 1):
+        u = i / n
+        pts.append(((1 - u) ** 2 * x0 + 2 * (1 - u) * u * cx + u * u * x1,
+                    (1 - u) ** 2 * y0 + 2 * (1 - u) * u * cy + u * u * y1))
+    if len(pts) > 1:
+        glow_col = col[:3] + (int(col[3] * 0.3),)
+        d.line(pts, fill=glow_col, width=int(11 * k), joint='curve')
+        d.line(pts, fill=col, width=max(3, int(4 * k)), joint='curve')
+    if q >= 0.97 and len(pts) > 2:
+        (ax, ay), (bx, by) = pts[-3], pts[-1]
+        ang = math.atan2(by - ay, bx - ax)
+        s = 20 * k
+        d.polygon([(bx + 4 * k * math.cos(ang), by + 4 * k * math.sin(ang)),
+                   (bx - s * math.cos(ang - 0.45), by - s * math.sin(ang - 0.45)),
+                   (bx - s * math.cos(ang + 0.45), by - s * math.sin(ang + 0.45))], fill=col)
+
+
+def fx_burst(d, c, dt, col, k, seed=1, n=22, life=0.6):
+    """انفجار شرارات ذهبية صغيرة حول نقطة."""
+    if dt < 0 or dt > life:
+        return
+    rnd = random.Random(seed)
+    e = ease(dt / life)
+    al = int(255 * (1 - dt / life))
+    for _ in range(n):
+        ang = rnd.uniform(0, 2 * math.pi)
+        r = (12 + rnd.uniform(40, 110) * e) * k
+        sz = rnd.uniform(2.5, 5) * k * (1 - 0.5 * e)
+        x, y = c[0] + r * math.cos(ang), c[1] + r * math.sin(ang)
+        d.ellipse((x - sz, y - sz, x + sz, y + sz), fill=tuple(col[:3]) + (al,))
+
+
+def caption_layer(script, t, cache={}):
+    """شريط شرح الخطوة أسفل الفيديو (يدخل بانزلاق)."""
+    for c in script.captions:
+        if c['at'] <= t < c['end']:
+            if not c['text']:
+                return None
+            key = c['text']
+            if key not in cache:
+                th = script.theme
+                ti = rich_text(c['text'], 42, th.get('title', (255, 255, 255)))
+                px, py = 34, 14
+                b = Image.new('RGBA', (ti.width + px * 2 + 14, ti.height + py * 2), (0, 0, 0, 0))
+                bd = ImageDraw.Draw(b)
+                bd.rounded_rectangle((0, 0, b.width - 1, b.height - 1), radius=26,
+                                     fill=(12, 21, 19, 235), outline=th['cursor'] + (180,), width=2)
+                bd.rounded_rectangle((b.width - 14, 10, b.width - 6, b.height - 10), radius=4,
+                                     fill=th['cursor'])
+                b.alpha_composite(ti, (px, py))
+                cache[key] = b
+            b = cache[key]
+            p = ease((t - c['at']) / 0.35) * ease((c['end'] - t) / 0.3)
+            if p <= 0.01:
+                return None
+            b = b.copy()
+            b.putalpha(b.split()[3].point(lambda v: int(v * p)))
+            return b, ((W - b.width) // 2, int(1705 + 30 * (1 - p)))
+    return None
+
+
+def camera(scene, t, dur, push=0.05, focus=None):
+    """تقريب بطيء + اهتزاز يد خفيف + زوم على هدف (اختياري)."""
     z = OVER * (1 + push * ease(t / dur))
+    fw, punch = None, 0.0
+    if focus:
+        best, punch = focus
+        if best:
+            fw, zf, (fx, fy) = best
+    z *= 1 + punch
     cw, ch = SW / z, SH / z
     dx = 9 * math.sin(2 * math.pi * 0.21 * t) + 4 * math.sin(2 * math.pi * 0.57 * t + 1)
     dy = 7 * math.sin(2 * math.pi * 0.17 * t + 2) + 3 * math.sin(2 * math.pi * 0.71 * t)
     cx, cy = SW / 2 + dx, SH / 2 + dy - 20
+    if fw:
+        z *= 1 + (zf - 1) * fw
+        cw, ch = SW / z, SH / z
+        cx += (fx - cx) * fw * 0.8
+        cy += (fy - cy) * fw * 0.8
     left = min(max(cx - cw / 2, 0), SW - cw)
     top = min(max(cy - ch / 2, 0), SH - ch)
     return scene.resize((W, H), Image.BICUBIC, box=(left, top, left + cw, top + ch))
@@ -845,9 +1089,24 @@ def main():
     over = overlays(script)
 
     def frame_at(t):
-        f = camera(comp.frame(editor.render(t)), t, script.duration,
-                   push=0.03 if plain else 0.05).convert('RGBA')
-        f.alpha_composite(over)
+        tex = editor.render(t)
+        best, punch = editor.focus(t)
+        if best:
+            w_, zf, (tx, ty) = best
+            sx = comp.box[0] + tx * comp.bsize[0] / tex.width
+            sy = comp.box[1] + ty * comp.bsize[1] / tex.height
+            best = (w_, zf, (sx, sy))
+        f = camera(comp.frame(tex), t, script.duration, push=0.03 if plain else 0.05,
+                   focus=(best, punch)).convert('RGBA')
+        if best and best[0] > 0.01:                    # العنوان يختفي وقت الزوم
+            o = over.copy()
+            o.putalpha(o.split()[3].point(lambda v, a=1 - best[0]: int(v * a)))
+            f.alpha_composite(o)
+        else:
+            f.alpha_composite(over)
+        cap = caption_layer(script, t)
+        if cap:
+            f.alpha_composite(cap[0], cap[1])
         return f.convert('RGB')
 
     if a.preview is not None:
